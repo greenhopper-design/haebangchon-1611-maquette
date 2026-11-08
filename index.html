@@ -80,6 +80,7 @@
 </aside>
 
 <nav class="dock" aria-label="메뉴">
+  <button class="dock-btn" data-action="report"><span class="ico">◈</span>사이트 분석</button>
   <button class="dock-btn on" data-panel="viewPanel"><span class="ico">◎</span>둘러보기</button>
   <button class="dock-btn" data-panel="floorPanel"><span class="ico">≡</span>층별</button>
   <button class="dock-btn" data-panel="sectionPanel"><span class="ico">◧</span>단면</button>
@@ -90,6 +91,11 @@
 <dialog id="gallery" aria-label="갤러리">
   <div class="gal-head"><h2>Gallery — GPT 렌더 베이스</h2><button id="galClose" aria-label="닫기">✕</button></div>
   <div class="gal-grid" id="galGrid"></div>
+</dialog>
+<dialog id="report" aria-label="사이트 분석 리포트">
+  <div class="rep-top"><div><b>SITE ANALYSIS</b> — 해방촌 16-11 · 세 시간의 집</div><div><button id="repPrint">인쇄 / PDF</button><button id="repClose" aria-label="닫기">✕</button></div></div>
+  <nav class="rep-nav" aria-label="리포트 목차"></nav>
+  <div class="rep-body"></div>
 </dialog>
 <dialog id="viewer" aria-label="크게 보기"><button id="viewerClose" aria-label="닫기">✕</button><div id="viewerBody"></div></dialog>
 

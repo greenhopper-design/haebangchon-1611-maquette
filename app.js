@@ -2,6 +2,7 @@
 // 좌표: 로컬 (x 신흥로 방향, y 대지 안쪽, z 위, 1F FL=0) → three (x, z, -y)
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { openReport } from "./report.js";
 
 const P = (x, y, z) => new THREE.Vector3(x, z, -y);
 const NORTH = [-0.7155, 0.6986], EAST = [0.6986, 0.7155];   // 로컬 평면에서 정북·정동 (지적 기준)
@@ -173,6 +174,7 @@ $$("[data-sec]").forEach((b) => b.addEventListener("click", () => {
 }));
 $$(".dock-btn").forEach((b) => b.addEventListener("click", () => {
   if (b.dataset.action === "gallery") { openGallery(); return; }
+  if (b.dataset.action === "report") { openReport(API); return; }
   const id = b.dataset.panel, panel = document.getElementById(id), show = panel.hidden;
   $$(".subpanel").forEach((p) => (p.hidden = true)); $$(".dock-btn").forEach((d) => d.classList.remove("on"));
   panel.hidden = !show; b.classList.toggle("on", show);
@@ -199,6 +201,18 @@ function openGallery() {
   $("#gallery").showModal();
 }
 $("#galClose").addEventListener("click", () => $("#gallery").close());
+$("#repClose").addEventListener("click", () => $("#report").close());
+$("#repPrint").addEventListener("click", () => print());
+// 리포트 → 3D 연결
+const API = {
+  season(day, hour) {
+    state.day = day; state.hour = hour; $("#time").value = hour;
+    exclusive($$("[data-season]"), $(`[data-season="${day}"]`)); updateSun(); goView("overview");
+  },
+  legal(on) { $("#legalToggle").checked = on; if (groups["법규볼륨"]) groups["법규볼륨"].visible = on; goView("north"); },
+  view(key) { exclusive($$("[data-view]"), $(`[data-view="${key}"]`)); goView(key); },
+  zoom(src) { $("#viewerBody").innerHTML = media(src, true); $("#viewer").showModal(); },
+};
 $("#viewerClose").addEventListener("click", () => { $("#viewer").close(); $("#viewerBody").innerHTML = ""; });
 
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
