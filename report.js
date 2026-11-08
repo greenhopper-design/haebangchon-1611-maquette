@@ -1,5 +1,5 @@
-// 사이트 분석 리포트 (archiMap 광역분석 + 직접 조사). openReport(api) — api: { season(day,hour), legal(on), view(key) }
-const AM = "archiMap 광역분석 (반경 약 350m · 0.384㎢ · ECMWF ERA5-Land · ERA5 · CAMS), 2026.11.07";
+// 사이트 분석 리포트 (광역 분석 + 현장·도면 조사). openReport(api) — api: { season(day,hour), legal(on), view(key) }
+const AM = "광역 분석 (반경 약 350m · 0.384㎢), 2026.11.07 · 기후·대기 원자료 ECMWF ERA5-Land · ERA5 · CAMS";
 const MONTHS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const C = { ink: "#1f2328", mute: "#6b7783", red: "#d7263d", navy: "#2e4a62", gold: "#c99a2e", green: "#4f7a5a", slate: "#8a97a3", grid: "#e3e8ed" };
 
@@ -100,8 +100,6 @@ const PAGES = [
       .map(([h, d, r], i) => `<div class="card"><em>0${i + 1}</em><h4>${h}</h4><small>${d}</small><p>→ ${r}</p></div>`).join("")}</div>
     <p class="note big">결론: 중정형 최대 볼륨 — 연면적 140.99㎡ · 용적률 142.65% · 높이 10.13m</p>
     <div class="acts">${act("court", "3D에서 중정 보기")}</div>`, "설계안 v3 · 근거 수치는 앞 장들"],
-  ["부록", "archiMap 원본", "archiMap 광역분석 리포트 20쪽", () => `
-    <div class="thumbs">${Array.from({ length: 20 }, (_, i) => img(`archimap_${String(i + 1).padStart(2, "0")}.jpg`, `${i + 1} / 20`)).join("")}</div>`, AM],
 ];
 
 export function openReport(api) {
