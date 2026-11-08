@@ -111,7 +111,7 @@ export function openReport(api) {
     body.innerHTML = PAGES.map(([no, short, title, html, src], i) => `<section class="rep-page" id="rp${i}"><header><span>${no} — ${short}</span><h3>${title}</h3></header>${html()}<footer>자료: ${src}</footer></section>`).join("");
     nav.innerHTML = PAGES.map(([no, short], i) => `<a href="#rp${i}" data-i="${i}">${no} ${short}</a>`).join("");
     nav.addEventListener("click", (e) => { const a = e.target.closest("a"); if (!a) return; e.preventDefault(); body.querySelector(a.getAttribute("href")).scrollIntoView({ behavior: "smooth" }); });
-    const obs = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) nav.querySelectorAll("a").forEach((a) => a.classList.toggle("on", a.dataset.i === en.target.id.slice(2))); }), { root: body, threshold: 0.4 });
+    const obs = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) nav.querySelectorAll("a").forEach((a) => a.classList.toggle("on", a.dataset.i === en.target.id.slice(2))); }), { root: body, rootMargin: "-30% 0px -65% 0px" });
     body.querySelectorAll(".rep-page").forEach((p) => obs.observe(p));
     body.addEventListener("click", (e) => {
       const b = e.target.closest("[data-act]");
