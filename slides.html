@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발표 — 세 시간의 집 (해방촌 16-11)</title>
+<style>
+:root { --ink: #1f2328; --mute: #6b7783; --red: #d7263d; --bg: #e9e7e2; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+body { display: grid; grid-template-rows: 54px 1fr auto; height: 100vh; }
+header { display: flex; align-items: center; gap: 8px; padding: 0 16px; background: #fff; border-bottom: 1px solid #e2e2de; font-size: 14px; }
+header .brand { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; }
+header .brand i { width: 10px; height: 10px; background: var(--red); flex: none; }
+header small { color: var(--mute); }
+.btn { all: unset; cursor: pointer; padding: 7px 12px; border-radius: 999px; border: 1px solid #ddd; font-size: 13px; background: #fff; white-space: nowrap; }
+.btn.dark { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn:focus-visible, .th:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+main { position: relative; display: grid; grid-template-columns: 1fr; min-height: 0; }
+main.notes { grid-template-columns: 1fr 360px; }
+.stage { position: relative; display: grid; place-items: center; padding: 18px; min-height: 0; }
+.stage img { max-width: 100%; max-height: 100%; aspect-ratio: 16/9; background: #fff; box-shadow: 0 6px 30px rgba(0, 0, 0, .18); }
+.nav { position: absolute; top: 50%; transform: translateY(-50%); all: unset; cursor: pointer; width: 46px; height: 46px; border-radius: 50%; background: rgba(31, 35, 40, .75); color: #fff; display: grid; place-items: center; font-size: 20px; }
+.prev { position: absolute; left: 22px; top: calc(50% - 23px); } .next { position: absolute; right: 22px; top: calc(50% - 23px); }
+aside { display: none; overflow: auto; padding: 18px; background: #fff; border-left: 1px solid #e2e2de; }
+main.notes aside { display: block; }
+aside .t { font-size: 12px; color: var(--red); font-weight: 700; } aside h3 { margin: 4px 0 10px; font-size: 18px; }
+aside p { font-size: 16px; line-height: 1.65; margin: 0 0 .6em; word-break: keep-all; } aside .do { font-size: 13px; color: var(--mute); }
+aside .qr { margin-top: 18px; padding-top: 14px; border-top: 1px solid #eee; font-size: 12px; color: var(--mute); display: flex; gap: 12px; align-items: center; }
+aside .qr img { width: 110px; height: 110px; }
+.strip { display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px 14px; background: #fff; border-top: 1px solid #e2e2de; }
+.th { all: unset; cursor: pointer; flex: none; width: 150px; font-size: 11px; color: var(--mute); }
+.th img { width: 150px; aspect-ratio: 16/9; display: block; border: 2px solid transparent; border-radius: 4px; background: #eee; }
+.th.on img { border-color: var(--red); } .th.on { color: var(--ink); font-weight: 600; }
+body.fs header, body.fs .strip { display: none; } body.fs { grid-template-rows: 1fr; background: #111; } body.fs .stage { padding: 0; } body.fs main { grid-template-columns: 1fr; } body.fs aside { display: none; }
+@media (max-width: 800px) { main.notes { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } header small, .hide-m { display: none; } .th { width: 110px; } .th img { width: 110px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><i></i><b>세 시간의 집 — 설계 발표</b><small id="pos"></small></div>
+  <button class="btn" id="bNotes" aria-pressed="false">대본 보기</button>
+  <button class="btn hide-m" id="bFs">전체 화면</button>
+  <a class="btn hide-m" href="assets/slides/three-hours-house.pptx" download="261109_김세진_세시간의집_설계발표.pptx">PPT 받기</a>
+  <a class="btn" href="script.html">폰 대본</a>
+  <a class="btn dark" href="./">3D 모형 →</a>
+</header>
+<main id="main">
+  <div class="stage"><img id="slide" alt=""><button class="nav prev" id="bPrev" aria-label="이전 슬라이드">‹</button><button class="nav next" id="bNext" aria-label="다음 슬라이드">›</button></div>
+  <aside id="notes" aria-live="polite"></aside>
+</main>
+<div class="strip" id="strip" aria-label="슬라이드 목록"></div>
+<script>
+const T = [{"no": 1, "sec": "표지", "title": "세 시간의 집", "sec_s": 20, "say": ["안녕하세요, 김세진입니다.", "제가 설계한 집은 해방촌 16-11번지, 신흥로 82-1의 ‘세 시간의 집’입니다.", "30평 땅에 3대 가족이 사는 중정형 주택이고, 1층에는 동네 빨래방을 넣었습니다."], "do": "표지 사진(신흥로 가로) 띄운 채 시작"}, {"no": 2, "sec": "개념", "title": "한 채의 집이 세 개의 시간을 산다", "sec_s": 35, "say": ["제목의 ‘세 시간’은 이 동네 생활인구 데이터에서 왔습니다.", "평일 오전 10시~12시는 9,090명으로 하루 중 가장 비는 시간이고, 어르신들이 동네에 남습니다.", "새벽 3시는 사는 사람만 남는 시간, 토요일 저녁 8시는 13,649명으로 방문객이 가장 많은 시간입니다.", "한 채의 집이 이 세 시간을 모두 받아내도록 설계했습니다."], "do": "숫자 세 개를 차례로 가리키기"}, {"no": 3, "sec": "사이트", "title": "남산 아래, 98.84㎡의 경사지", "sec_s": 30, "say": ["대지는 남산 남쪽 경사면에 있는 98.84제곱미터, 약 30평입니다.", "평균 경사는 8.9도이고, 폭 8.1미터의 신흥로에 9.5미터 붙어 있습니다.", "원래 1층이 동네 세탁소였던 땅입니다. 이 기억을 1층 빨래방으로 이었습니다."], "do": "조감 렌더에서 대지 위치 가리키기"}, {"no": 4, "sec": "사이트", "title": "사이트가 정한 네 가지 조건", "sec_s": 40, "say": ["사이트 분석에서 네 가지 조건을 얻었습니다.", "첫째, 남서쪽 도로면이 가장 밝습니다. 그래서 거리 쪽으로 아치와 테라스를 열었습니다.", "둘째, 겨울에는 앞 건물 그림자가 16미터까지 드리워 1층이 그늘입니다. 그래서 위에서 빛을 내리는 중정을 두었습니다.", "셋째, 건폐율이 78%인 꽉 찬 노후 벽돌 조직입니다. 그래서 법정 최대로 짓고 남는 땅을 중정 하나로 모았습니다.", "넷째, 걸어서 15분 안에 시설이 614곳 있는 동네입니다. 그래서 1층을 동네와 나누는 빨래방으로 했습니다."], "do": "카드 1→4 순서대로"}, {"no": 5, "sec": "법규", "title": "법정 최대 볼륨 안에서", "sec_s": 35, "say": ["제1종일반주거지역이고 고도지구 12미터입니다.", "건폐율 60%, 용적률 150%, 그리고 정북일조로 북쪽 경계에서 1.5미터를 띄워야 합니다.", "건축선 안 최대 영역은 70.55제곱미터인데, 건폐율로는 59.3제곱미터까지만 지을 수 있습니다.", "어차피 11제곱미터 이상은 비워야 했습니다. 이 빈 땅이 중정의 출발점입니다."], "do": "면적산출도에서 중정 빈 부분 가리키기"}, {"no": 6, "sec": "형태", "title": "법정 최대에서 중정형 집으로", "sec_s": 45, "say": ["형태는 여섯 단계로 만들었습니다.", "대지에서 법정 최대 볼륨을 세우고, 북쪽을 정북일조선에 맞춰 깎았습니다.", "가운데를 비워 중정을 만들고, 1층 앞을 열어 필로티 주차와 빨래방을 넣었습니다.", "마지막으로 3층을 2.2미터 물려 거리와 남산을 향한 테라스를 만들었습니다."], "do": "1→6 단계 손으로 따라가기"}, {"no": 7, "sec": "평면", "title": "1층 — 동네와 나누는 층", "sec_s": 40, "say": ["1층 앞 왼쪽은 필로티 주차 1대와 승하차 통로, 오른쪽은 12제곱미터의 동네 빨래방입니다.", "필로티 둘레의 약 60%를 열어서 바닥면적에서 제외했습니다.", "현관홀의 원형 계단이 3층까지 이어지고, 뒤쪽에는 계단 없이 닿는 부모님 방이 중정을 바라봅니다."], "do": "평면에서 빨래방 → 홀 → 부모님 방 순으로"}, {"no": 8, "sec": "평면", "title": "2층 — 중정을 두르는 침실층", "sec_s": 30, "say": ["2층은 침실층입니다.", "앞쪽에 안방과 아이방, 뒤쪽에 둘째 아이방과 가족실이 있습니다.", "방과 방 사이를 중정 쪽 유리 복도가 감싸서, 어느 방에서 나와도 중정 나무를 지나갑니다."], "do": "복도 렌더 가리키기"}, {"no": 9, "sec": "평면", "title": "3층 — 거실과 테라스", "sec_s": 30, "say": ["3층은 가족이 모이는 층입니다.", "17.5제곱미터의 거실과 식당이 남서쪽 테라스로 열리고, 그 너머로 해방촌 지붕과 남산이 보입니다.", "주방은 뒤쪽에서 중정 너머를 바라봅니다."], "do": "렌더에서 남산 가리키기"}, {"no": 10, "sec": "중정", "title": "중정 — 빛을 1층까지", "sec_s": 35, "say": ["중정은 12.3제곱미터입니다.", "동지 정오 태양고도가 29도라, 앞 건물 그림자 때문에 1층은 옆에서 빛을 받기 어렵습니다.", "그래서 위에서 빛을 받아 1층까지 내리는 빛 우물로 만들었습니다.", "나무 한 그루를 세 층이 같이 봅니다."], "do": "올려보기 렌더"}, {"no": 11, "sec": "단면", "title": "단면 — 세 층이 중정을 나눠 쓴다", "sec_s": 35, "say": ["단면으로 보면 층고는 3.8미터, 3.7미터이고, 전체 높이는 평균지반에서 10.13미터입니다.", "고도지구 12미터와 정북일조 10미터선 안에 들어옵니다.", "부분 상세에서는 노출콘크리트 외벽, 스틸 창호, 3층 유리 난간을 1/30으로 정리했습니다."], "do": "단면 레벨선 → 오른쪽 상세 순"}, {"no": 12, "sec": "외관", "title": "골목의 저녁을 밝히는 1층", "sec_s": 30, "say": ["신흥로에서 보면 두 개의 아치가 보입니다. 왼쪽은 필로티, 오른쪽은 빨래방입니다.", "토요일 저녁, 방문객이 가장 많은 시간에 빨래방 불빛이 골목의 가로등이 됩니다.", "이것이 세 번째 시간입니다."], "do": "해 질 녘 렌더로 넘기며"}, {"no": 13, "sec": "개요", "title": "건축 개요", "sec_s": 25, "say": ["정리하면 건축면적 58.73제곱미터로 건폐율 59.42%, 연면적 140.99제곱미터로 용적률 142.65%입니다.", "높이 10.13미터, 주차는 필로티 1대입니다. 모든 항목이 법정 기준 안에 있습니다."], "do": "숫자 카드"}, {"no": 14, "sec": "디지털", "title": "3D 웹 마케트와 도면집", "sec_s": 30, "say": ["설계 결과는 웹 3D 모형으로도 볼 수 있습니다.", "빨간 핀이 렌더를 찍은 자리이고, 누르면 3D가 그 자리로 이동해 렌더와 겹쳐 보입니다.", "사이트 분석 리포트와 도면집 22장도 같은 사이트에서 3D와 연결됩니다. QR로 들어와 보셔도 됩니다."], "do": "QR 가리키기"}, {"no": 15, "sec": "마무리", "title": "한 채의 집이 세 개의 시간을 산다", "sec_s": 15, "say": ["오전의 사랑방, 새벽의 집, 토요일 저녁의 골목 가게.", "한 채의 집이 세 개의 시간을 사는 집, 세 시간의 집이었습니다. 감사합니다."], "do": "인사"}];
+const N = T.length, src = (i) => `assets/slides/s${String(i + 1).padStart(2, "0")}.jpg`;
+const $ = (id) => document.getElementById(id);
+$("strip").innerHTML = T.map((t, i) => `<button class="th" data-i="${i}"><img src="${src(i)}" alt="" loading="lazy">${t.no}. ${t.title}</button>`).join("");
+let cur = Math.max(0, Math.min(N - 1, (+location.hash.slice(1) || 1) - 1));
+function show(i) {
+  cur = Math.max(0, Math.min(N - 1, i)); const t = T[cur];
+  $("slide").src = src(cur); $("slide").alt = `${t.no}. ${t.title}`;
+  $("pos").textContent = `  ${cur + 1} / ${N}`;
+  $("notes").innerHTML = `<div class="t">${t.no} / ${N} · ${t.sec} · ${t.sec_s}초</div><h3>${t.title}</h3>${t.say.map((p) => `<p>${p}</p>`).join("")}<p class="do">▶ ${t.do}</p>
+    <div class="qr"><img src="assets/slides/qr_script.png" alt="폰 대본 QR"><span>핸드폰으로 찍으면<br>같은 대본이 열립니다</span></div>`;
+  document.querySelectorAll(".th").forEach((b) => b.classList.toggle("on", +b.dataset.i === cur));
+  document.querySelector(`.th[data-i="${cur}"]`).scrollIntoView({ inline: "center", block: "nearest" });
+  history.replaceState(null, "", `#${cur + 1}`);
+  if (cur + 1 < N) new Image().src = src(cur + 1);   // 다음 장 미리 불러오기
+}
+$("strip").addEventListener("click", (e) => { const b = e.target.closest(".th"); if (b) show(+b.dataset.i); });
+$("bPrev").onclick = () => show(cur - 1); $("bNext").onclick = () => show(cur + 1);
+$("slide").onclick = () => show(cur + 1);
+const notes = (on) => { $("main").classList.toggle("notes", on); $("bNotes").setAttribute("aria-pressed", on); $("bNotes").textContent = on ? "대본 닫기" : "대본 보기"; };
+$("bNotes").onclick = () => notes(!$("main").classList.contains("notes"));
+$("bFs").onclick = () => { document.body.classList.add("fs"); document.documentElement.requestFullscreen?.(); };
+document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement) document.body.classList.remove("fs"); });
+addEventListener("keydown", (e) => {
+  if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+  else if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+  else if (e.key === "Home") show(0); else if (e.key === "End") show(N - 1);
+  else if (e.key === "n" || e.key === "N") $("bNotes").click(); else if (e.key === "f" || e.key === "F") $("bFs").click();
+});
+show(cur);
+</script>
+</body>
+</html>
