@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>발표 — 세 시간의 집 (해방촌 16-11)</title>
 <style>
-:root { --ink: #1f2328; --mute: #6b7783; --red: #d7263d; --bg: #e9e7e2; }
+:root { --ink: #1f2328; --mute: #5b6b7a; --red: #d7263d; --line: #bfd0e0; --card: #f2f4f6; --bg: #e9e7e2; }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
 body { display: grid; grid-template-rows: 54px 1fr auto; height: 100vh; }
@@ -15,25 +15,41 @@ header .brand i { width: 10px; height: 10px; background: var(--red); flex: none;
 header small { color: var(--mute); }
 .btn { all: unset; cursor: pointer; padding: 7px 12px; border-radius: 999px; border: 1px solid #ddd; font-size: 13px; background: #fff; white-space: nowrap; }
 .btn.dark { background: var(--ink); color: #fff; border-color: var(--ink); }
-.btn:focus-visible, .th:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.btn:focus-visible, .th:focus-visible, .nav:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 main { position: relative; display: grid; grid-template-columns: 1fr; min-height: 0; }
 main.notes { grid-template-columns: 1fr 360px; }
-.stage { position: relative; display: grid; place-items: center; padding: 18px; min-height: 0; }
-.stage img { max-width: 100%; max-height: 100%; aspect-ratio: 16/9; background: #fff; box-shadow: 0 6px 30px rgba(0, 0, 0, .18); }
-.nav { position: absolute; top: 50%; transform: translateY(-50%); all: unset; cursor: pointer; width: 46px; height: 46px; border-radius: 50%; background: rgba(31, 35, 40, .75); color: #fff; display: grid; place-items: center; font-size: 20px; }
-.prev { position: absolute; left: 22px; top: calc(50% - 23px); } .next { position: absolute; right: 22px; top: calc(50% - 23px); }
+.stage { position: relative; min-height: 0; overflow: hidden; }
+/* 슬라이드 = PPT 와 같은 13.333 × 7.5 in → 1333 × 750 px 좌표 (1in = 100px), 화면에 맞춰 scale */
+.slide { position: absolute; left: 50%; top: 50%; width: 1333px; height: 750px; background: #fff; box-shadow: 0 6px 30px rgba(0, 0, 0, .18); transform-origin: 0 0; overflow: hidden; }
+.slide > * { position: absolute; }
+.hd { left: 40px; top: 18px; font-size: 13.9px; color: var(--mute); }
+.fl { background: var(--line); } .dot { background: var(--red); }
+.lab { font-size: 13.9px; color: var(--mute); } .ttl { font-weight: 700; line-height: 1.22; white-space: pre-line; word-break: keep-all; }
+ul.bl { margin: 0; padding: 0 0 0 20px; font-size: 18px; line-height: 1.45; word-break: keep-all; } ul.bl li { margin-bottom: 8px; }
+.src { font-size: 13.9px; color: var(--mute); } .num { font-size: 13.9px; color: var(--mute); text-align: right; }
+.im { object-fit: cover; } .im.fit { object-fit: contain; }
+.cap { font-size: 13.9px; color: var(--mute); }
+.st { background: var(--card); padding: 10px 15px; } .st b { display: block; font-size: 30.5px; line-height: 1.5; } .st b.r { color: var(--red); } .st span { display: block; font-size: 13.9px; color: var(--mute); line-height: 1.35; word-break: keep-all; }
+.cd { background: var(--card); padding: 12px 15px; } .cd em { font-style: normal; color: var(--red); font-weight: 700; font-size: 25px; } .cd h4 { margin: 8px 0 0; font-size: 20.8px; line-height: 1.3; height: 70px; word-break: keep-all; }
+.cd small { display: block; font-size: 13.9px; color: var(--mute); height: 55px; word-break: keep-all; } .cd p { margin: 0; font-size: 16.7px; line-height: 1.35; height: 95px; word-break: keep-all; }
+.cd img { position: absolute; left: 12px; right: 12px; bottom: 12px; width: calc(100% - 24px); object-fit: cover; }
+table.tb { border-collapse: collapse; font-size: 16.7px; } .tb td { border: 1px solid #d5dce3; padding: 0 10px; height: 42px; } .tb tr:first-child td, .tb tr:last-child td { font-weight: 700; } .tb tr:first-child td { background: var(--card); }
+.nav { all: unset; cursor: pointer; position: absolute; top: calc(50% - 23px); width: 46px; height: 46px; border-radius: 50%; background: rgba(31, 35, 40, .75); color: #fff; display: grid; place-items: center; font-size: 22px; z-index: 2; }
+.prev { left: 22px; } .next { right: 22px; }
 aside { display: none; overflow: auto; padding: 18px; background: #fff; border-left: 1px solid #e2e2de; }
 main.notes aside { display: block; }
-aside .t { font-size: 12px; color: var(--red); font-weight: 700; } aside h3 { margin: 4px 0 10px; font-size: 18px; }
+aside .t { font-size: 12px; color: var(--red); font-weight: 700; } aside h3 { margin: 4px 0 10px; font-size: 18px; white-space: pre-line; }
 aside p { font-size: 16px; line-height: 1.65; margin: 0 0 .6em; word-break: keep-all; } aside .do { font-size: 13px; color: var(--mute); }
 aside .qr { margin-top: 18px; padding-top: 14px; border-top: 1px solid #eee; font-size: 12px; color: var(--mute); display: flex; gap: 12px; align-items: center; }
 aside .qr img { width: 110px; height: 110px; }
 .strip { display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px 14px; background: #fff; border-top: 1px solid #e2e2de; }
 .th { all: unset; cursor: pointer; flex: none; width: 150px; font-size: 11px; color: var(--mute); }
-.th img { width: 150px; aspect-ratio: 16/9; display: block; border: 2px solid transparent; border-radius: 4px; background: #eee; }
-.th.on img { border-color: var(--red); } .th.on { color: var(--ink); font-weight: 600; }
-body.fs header, body.fs .strip { display: none; } body.fs { grid-template-rows: 1fr; background: #111; } body.fs .stage { padding: 0; } body.fs main { grid-template-columns: 1fr; } body.fs aside { display: none; }
-@media (max-width: 800px) { main.notes { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } header small, .hide-m { display: none; } .th { width: 110px; } .th img { width: 110px; } }
+.th .mini { position: relative; width: 150px; height: 84.4px; overflow: hidden; border: 2px solid transparent; border-radius: 4px; background: #fff; }
+.th .mini .slide { left: 0; top: 0; box-shadow: none; pointer-events: none; }
+.th.on .mini { border-color: var(--red); } .th.on { color: var(--ink); font-weight: 600; }
+body.fs header, body.fs .strip, body.fs aside { display: none; } body.fs { grid-template-rows: 1fr; background: #111; } body.fs main { grid-template-columns: 1fr; } body.fs .slide { box-shadow: none; } body.fs .nav { opacity: 0; } body.fs .nav:hover { opacity: 1; }
+@media (max-width: 800px) { main.notes { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } main.notes aside { max-height: 45vh; border-left: 0; border-top: 1px solid #e2e2de; } header small, .hide-m { display: none; } .th { width: 110px; } .th .mini { width: 110px; height: 61.9px; } }
+@media print { header, .strip, aside, .nav { display: none !important; } body { display: block; height: auto; background: #fff; } }
 </style>
 </head>
 <body>
@@ -46,34 +62,97 @@ body.fs header, body.fs .strip { display: none; } body.fs { grid-template-rows: 
   <a class="btn dark" href="./">3D 모형 →</a>
 </header>
 <main id="main">
-  <div class="stage"><img id="slide" alt=""><button class="nav prev" id="bPrev" aria-label="이전 슬라이드">‹</button><button class="nav next" id="bNext" aria-label="다음 슬라이드">›</button></div>
+  <div class="stage" id="stage"><button class="nav prev" id="bPrev" aria-label="이전 슬라이드">‹</button><button class="nav next" id="bNext" aria-label="다음 슬라이드">›</button></div>
   <aside id="notes" aria-live="polite"></aside>
 </main>
 <div class="strip" id="strip" aria-label="슬라이드 목록"></div>
 <script>
 const T = [{"no": 1, "sec": "표지", "title": "세 시간의 집", "sec_s": 20, "say": ["안녕하세요, 김세진입니다.", "제가 설계한 집은 해방촌 16-11번지, 신흥로 82-1의 ‘세 시간의 집’입니다.", "30평 땅에 3대 가족이 사는 중정형 주택이고, 1층에는 동네 빨래방을 넣었습니다."], "do": "표지 사진(신흥로 가로) 띄운 채 시작"}, {"no": 2, "sec": "개념", "title": "한 채의 집이 세 개의 시간을 산다", "sec_s": 35, "say": ["제목의 ‘세 시간’은 이 동네 생활인구 데이터에서 왔습니다.", "평일 오전 10시~12시는 9,090명으로 하루 중 가장 비는 시간이고, 어르신들이 동네에 남습니다.", "새벽 3시는 사는 사람만 남는 시간, 토요일 저녁 8시는 13,649명으로 방문객이 가장 많은 시간입니다.", "한 채의 집이 이 세 시간을 모두 받아내도록 설계했습니다."], "do": "숫자 세 개를 차례로 가리키기"}, {"no": 3, "sec": "사이트", "title": "남산 아래, 98.84㎡의 경사지", "sec_s": 30, "say": ["대지는 남산 남쪽 경사면에 있는 98.84제곱미터, 약 30평입니다.", "평균 경사는 8.9도이고, 폭 8.1미터의 신흥로에 9.5미터 붙어 있습니다.", "원래 1층이 동네 세탁소였던 땅입니다. 이 기억을 1층 빨래방으로 이었습니다."], "do": "조감 렌더에서 대지 위치 가리키기"}, {"no": 4, "sec": "사이트", "title": "사이트가 정한 네 가지 조건", "sec_s": 40, "say": ["사이트 분석에서 네 가지 조건을 얻었습니다.", "첫째, 남서쪽 도로면이 가장 밝습니다. 그래서 거리 쪽으로 아치와 테라스를 열었습니다.", "둘째, 겨울에는 앞 건물 그림자가 16미터까지 드리워 1층이 그늘입니다. 그래서 위에서 빛을 내리는 중정을 두었습니다.", "셋째, 건폐율이 78%인 꽉 찬 노후 벽돌 조직입니다. 그래서 법정 최대로 짓고 남는 땅을 중정 하나로 모았습니다.", "넷째, 걸어서 15분 안에 시설이 614곳 있는 동네입니다. 그래서 1층을 동네와 나누는 빨래방으로 했습니다."], "do": "카드 1→4 순서대로"}, {"no": 5, "sec": "법규", "title": "법정 최대 볼륨 안에서", "sec_s": 35, "say": ["제1종일반주거지역이고 고도지구 12미터입니다.", "건폐율 60%, 용적률 150%, 그리고 정북일조로 북쪽 경계에서 1.5미터를 띄워야 합니다.", "건축선 안 최대 영역은 70.55제곱미터인데, 건폐율로는 59.3제곱미터까지만 지을 수 있습니다.", "어차피 11제곱미터 이상은 비워야 했습니다. 이 빈 땅이 중정의 출발점입니다."], "do": "면적산출도에서 중정 빈 부분 가리키기"}, {"no": 6, "sec": "형태", "title": "법정 최대에서 중정형 집으로", "sec_s": 45, "say": ["형태는 여섯 단계로 만들었습니다.", "대지에서 법정 최대 볼륨을 세우고, 북쪽을 정북일조선에 맞춰 깎았습니다.", "가운데를 비워 중정을 만들고, 1층 앞을 열어 필로티 주차와 빨래방을 넣었습니다.", "마지막으로 3층을 2.2미터 물려 거리와 남산을 향한 테라스를 만들었습니다."], "do": "1→6 단계 손으로 따라가기"}, {"no": 7, "sec": "평면", "title": "1층 — 동네와 나누는 층", "sec_s": 40, "say": ["1층 앞 왼쪽은 필로티 주차 1대와 승하차 통로, 오른쪽은 12제곱미터의 동네 빨래방입니다.", "필로티 둘레의 약 60%를 열어서 바닥면적에서 제외했습니다.", "현관홀의 원형 계단이 3층까지 이어지고, 뒤쪽에는 계단 없이 닿는 부모님 방이 중정을 바라봅니다."], "do": "평면에서 빨래방 → 홀 → 부모님 방 순으로"}, {"no": 8, "sec": "평면", "title": "2층 — 중정을 두르는 침실층", "sec_s": 30, "say": ["2층은 침실층입니다.", "앞쪽에 안방과 아이방, 뒤쪽에 둘째 아이방과 가족실이 있습니다.", "방과 방 사이를 중정 쪽 유리 복도가 감싸서, 어느 방에서 나와도 중정 나무를 지나갑니다."], "do": "복도 렌더 가리키기"}, {"no": 9, "sec": "평면", "title": "3층 — 거실과 테라스", "sec_s": 30, "say": ["3층은 가족이 모이는 층입니다.", "17.5제곱미터의 거실과 식당이 남서쪽 테라스로 열리고, 그 너머로 해방촌 지붕과 남산이 보입니다.", "주방은 뒤쪽에서 중정 너머를 바라봅니다."], "do": "렌더에서 남산 가리키기"}, {"no": 10, "sec": "중정", "title": "중정 — 빛을 1층까지", "sec_s": 35, "say": ["중정은 12.3제곱미터입니다.", "동지 정오 태양고도가 29도라, 앞 건물 그림자 때문에 1층은 옆에서 빛을 받기 어렵습니다.", "그래서 위에서 빛을 받아 1층까지 내리는 빛 우물로 만들었습니다.", "나무 한 그루를 세 층이 같이 봅니다."], "do": "올려보기 렌더"}, {"no": 11, "sec": "단면", "title": "단면 — 세 층이 중정을 나눠 쓴다", "sec_s": 35, "say": ["단면으로 보면 층고는 3.8미터, 3.7미터이고, 전체 높이는 평균지반에서 10.13미터입니다.", "고도지구 12미터와 정북일조 10미터선 안에 들어옵니다.", "부분 상세에서는 노출콘크리트 외벽, 스틸 창호, 3층 유리 난간을 1/30으로 정리했습니다."], "do": "단면 레벨선 → 오른쪽 상세 순"}, {"no": 12, "sec": "외관", "title": "골목의 저녁을 밝히는 1층", "sec_s": 30, "say": ["신흥로에서 보면 두 개의 아치가 보입니다. 왼쪽은 필로티, 오른쪽은 빨래방입니다.", "토요일 저녁, 방문객이 가장 많은 시간에 빨래방 불빛이 골목의 가로등이 됩니다.", "이것이 세 번째 시간입니다."], "do": "해 질 녘 렌더로 넘기며"}, {"no": 13, "sec": "개요", "title": "건축 개요", "sec_s": 25, "say": ["정리하면 건축면적 58.73제곱미터로 건폐율 59.42%, 연면적 140.99제곱미터로 용적률 142.65%입니다.", "높이 10.13미터, 주차는 필로티 1대입니다. 모든 항목이 법정 기준 안에 있습니다."], "do": "숫자 카드"}, {"no": 14, "sec": "디지털", "title": "3D 웹 마케트와 도면집", "sec_s": 30, "say": ["설계 결과는 웹 3D 모형으로도 볼 수 있습니다.", "빨간 핀이 렌더를 찍은 자리이고, 누르면 3D가 그 자리로 이동해 렌더와 겹쳐 보입니다.", "사이트 분석 리포트와 도면집 22장도 같은 사이트에서 3D와 연결됩니다. QR로 들어와 보셔도 됩니다."], "do": "QR 가리키기"}, {"no": 15, "sec": "마무리", "title": "한 채의 집이 세 개의 시간을 산다", "sec_s": 15, "say": ["오전의 사랑방, 새벽의 집, 토요일 저녁의 골목 가게.", "한 채의 집이 세 개의 시간을 사는 집, 세 시간의 집이었습니다. 감사합니다."], "do": "인사"}];
-const N = T.length, src = (i) => `assets/slides/s${String(i + 1).padStart(2, "0")}.jpg`;
-const $ = (id) => document.getElementById(id);
-$("strip").innerHTML = T.map((t, i) => `<button class="th" data-i="${i}"><img src="${src(i)}" alt="" loading="lazy">${t.no}. ${t.title}</button>`).join("");
+// ---------------- 슬라이드 요소 (build.js 와 같은 좌표, 단위 0.01in = 1px)
+const R = (id) => `assets/render/${id}.jpg`, SL = (f) => `assets/slides/${f}`;
+const FX0 = 385, FX1 = 1295, FY0 = 60, FY1 = 700, FW = FX1 - FX0, FH = FY1 - FY0, PAD = 18, IX = FX0 + PAD, IY = FY0 + PAD, IW = FW - 2 * PAD, IH = FH - 2 * PAD;
+const at = (x, y, w, h) => `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const img = (src, x, y, w, h, alt, fit = false, cap) => `<img class="im${fit ? " fit" : ""}" src="${src}" alt="${esc(alt)}" loading="lazy" style="${at(x, y, w, h)}">` + (cap ? `<div class="cap" style="${at(x, y + h + 4, w, 26)}">${esc(cap)}</div>` : "");
+const stat = (x, y, w, big, small, h = 95, red = false) => `<div class="st" style="${at(x, y, w, h)}"><b${red ? ' class="r"' : ""}>${big}</b><span>${small}</span></div>`;
+const ul = (a) => `<ul class="bl">${a.map((t) => `<li>${t}</li>`).join("")}</ul>`;
+function frame() {
+  const l = (x, y, w, h) => `<div class="fl" style="${at(x, y, w || 1, h || 1)}"></div>`;
+  const c = (x, y) => l(x - 15, y, 30, 1) + l(x, y - 15, 1, 30);
+  return l(FX0, FY0, FW, 0) + l(FX0, FY1, FW, 0) + l(FX0, FY0, 0, FH) + l(FX1, FY0, 0, FH) + [[FX0, FY0], [FX1, FY0], [FX0, FY1], [FX1, FY1], [(FX0 + FX1) / 2, FY0], [(FX0 + FX1) / 2, FY1]].map(([x, y]) => c(x, y)).join("");
+}
+function content(n, label, title, body, src, inner) {
+  return `<div class="hd">세 시간의 집  —  해방촌 16-11 · AI도시건축디자인 · 김세진</div>${frame()}
+    <div class="dot" style="${at(40, 138, 9, 9)}"></div><div class="lab" style="${at(40, 155, 325, 35)}">${label}</div>
+    <div class="ttl" style="${at(40, 190, 330, 130)};font-size:33px">${title}</div><div style="${at(40, 335, 325, 355)}">${ul(body)}</div>
+    ${src ? `<div class="src" style="${at(FX0, 708, 800, 28)}">${src}</div>` : ""}<div class="num" style="${at(1245, 708, 50, 28)}">${n}</div>${inner}`;
+}
+function cover(label, title, body, photo, alt) {
+  return `<div class="dot" style="${at(60, 205, 12, 12)}"></div><div class="lab" style="${at(60, 230, 540, 40)};font-size:16.7px">${label}</div>
+    <div class="ttl" style="${at(60, 275, 560, 190)};font-size:61px">${title}</div><div style="${at(60, 480, 540, 180)}">${ul(body)}</div>${img(photo, 655, 0, 678, 750, alt)}`;
+}
+const planInner = (sheet, r1, c1, r2, c2) => { const pw = IW * 0.6, rw = IW - pw - 20, rh = (IH - 70) / 2;
+  return img(SL(`${sheet}_c.jpg`), IX, IY, pw, IH, `${sheet} 평면도`, true) + img(R(r1), IX + pw + 20, IY, rw, rh, c1, false, c1) + img(R(r2), IX + pw + 20, IY + rh + 40, rw, rh, c2, false, c2); };
+const S = [
+  () => cover("AI도시건축디자인 · 설계 발표", "세 시간의 집", ["해방촌 16-11 (신흥로 82-1) · 30평 중정형 주택", "3대 가족의 집 + 1층 동네 빨래방", "김세진 · 2026.11"], R("R08"), "신흥로 가로 렌더"),
+  (n) => content(n, "01 — 개념", "한 채의 집이\n세 개의 시간을 산다", ["해방촌 생활인구 데이터에서 세 개의 시간을 뽑았다", "1층 빨래방 · 중정 · 테라스가 각 시간을 받는다"], "자료: 서울 생활인구 (용산2가동) · 01_콘셉트.md", (() => { const w = (IW - 30) / 3;
+    return [["평일 10~12시", "9,090명 — 하루 중 가장 빈 시간. 어르신이 동네에 남는다"], ["새벽 3시", "사는 사람만 남는 시간. 집이 집으로 돌아온다"], ["토요일 20시", "13,649명 — 방문객이 가장 많은 시간. 골목이 가게가 된다"]].map(([b, t], i) => stat(IX + i * (w + 15), IY, w, b, t, 115, i !== 1)).join("") + img(R("R22"), IX, IY + 135, IW, IH - 135, "해 질 녘 조감 렌더"); })()),
+  (n) => content(n, "02 — 사이트", "남산 아래,\n98.84㎡의 경사지", ["용산구 용산동2가 16-11 · 신흥로 82-1", "남산 남쪽 경사면, 평균 경사 8.9°", "신흥로(폭 8.1m)에 9.5m 접함", "1층이 동네 세탁소였던 땅"], "사이트 분석 리포트 01~04장 · 렌더 GPT", (() => { const w = (IW - 45) / 4;
+    return img(R("R16"), IX, IY, IW, IH - 115, "해방촌 조감 렌더") + [["98.84㎡", "대지 (약 30평)"], ["8.9°", "평균 경사"], ["8.1m", "신흥로 폭"], ["1종일반", "주거지역 · 고도지구 12m"]].map(([b, t], i) => stat(IX + i * (w + 15), FY1 - PAD - 95, w, b, t)).join(""); })()),
+  (n) => content(n, "03 — 사이트 분석", "사이트가 정한\n네 가지 조건", ["분석 → 설계 조건 → 설계 응답", "각 카드 아래 사진이 그 응답의 렌더"], "사이트 분석 리포트 11장 종합", (() => { const cw = (IW - 45) / 4;
+    return [["01", "남서 도로면이 가장 밝다", "일사 S 950 kWh/㎡", "거리 쪽 아치 + 3층 테라스", "R08"], ["02", "겨울 1층은 그늘", "동지 29° · 그림자 16m", "위에서 빛을 내리는 중정", "R14"],
+      ["03", "꽉 찬 노후 벽돌 조직", "건폐율 78% · 79%가 1970~90년대", "법정 최대 + 남는 11㎡를 중정 하나로", "R17"], ["04", "걸어서 사는 동네", "15분 안 시설 614곳", "1층 동네 빨래방 + 필로티 주차", "R09"]]
+      .map(([no, h, d, r, f], i) => `<div class="cd" style="${at(IX + i * (cw + 15), IY, cw, IH)}"><em>${no}</em><h4>${h}</h4><small>${d}</small><p>→ ${r}</p><img src="${R(f)}" alt="조건 ${no} 렌더" loading="lazy" style="height:${IH - 292}px"></div>`).join(""); })()),
+  (n) => content(n, "04 — 법규", "법정 최대\n볼륨 안에서", ["건축선 안 최대 영역 70.55㎡", "건폐율로 지을 수 있는 면적 59.30㎡", "→ 11㎡ 이상은 어차피 비워야 한다", "이 빈 땅이 중정의 출발점"], "16-11_중정형_최대안_법규검토.md · 도면 A-016 · 학습용 검토",
+    [["60%", "건폐율 한도"], ["150%", "용적률 한도"], ["12m", "고도지구"], ["1.5m", "정북일조 이격 (10m 이하)"]].map(([b, t], i) => stat(IX, IY + i * 110, 200, b, t)).join("") + img(SL("A-016_c.jpg"), IX + 220, IY, IW - 220, IH, "건축·바닥 면적산출도 A-016", true)),
+  (n) => content(n, "05 — 형태", "법정 최대에서\n중정형 집으로", ["① 대지 98.84㎡", "② 법정 최대 볼륨", "③ 북쪽을 깎다 — 정북 1.5m", "④ 비우다 — 중정 12.3㎡", "⑤ 열다 — 필로티 · 빨래방", "⑥ 물러서다 — 테라스 2.2m"], "spec.py 치수로 라이노에서 단계별 매스를 만들어 같은 아이소로 캡처 · 도면 A-003",
+    img("assets/diagram/board.jpg", IX, IY, IW, IH, "형태 다이어그램 6단계", true)),
+  (n) => content(n, "06 — 1층 평면", "1층 —\n동네와 나누는 층", ["필로티 주차 1대 + 승하차 통로", "동네 빨래방 12.0㎡ (근생)", "현관홀 + 원형 계단 Ø2.0", "부모님 방 6.4㎡ — 계단 없이", "필로티 둘레 약 60% 개방 → 바닥면적 제외"], "도면 A-311 (1/50) · 렌더 GPT", planInner("A-311", "R09", "빨래방 → 중정", "R15", "부모님 방 → 중정")),
+  (n) => content(n, "07 — 2층 평면", "2층 —\n중정을 두르는 침실층", ["안방 9.0㎡ · 아이방 9.8㎡ / 8.0㎡", "가족실 4.6㎡ · 욕실·세탁 3.7㎡", "중정 쪽 유리 복도가 방들을 잇는다", "바닥면적 58.73㎡"], "도면 A-312 (1/50) · 렌더 GPT", planInner("A-312", "R11", "2층 중정 복도", "R04", "2층 아이소 컷")),
+  (n) => content(n, "08 — 3층 평면", "3층 —\n거실과 테라스", ["거실·식당 17.5㎡ — 남서 테라스로", "주방 8.0㎡ — 중정 너머를 본다", "전면 2.2m 후퇴 테라스 약 13.7㎡", "바닥면적 45.02㎡"], "도면 A-313 (1/50) · 렌더 GPT", planInner("A-313", "R12", "3층 거실 → 테라스 · 남산", "R13", "3층 주방 → 중정")),
+  (n) => content(n, "09 — 중정", "중정 —\n빛을 1층까지", ["중정 12.3㎡ · 나무 한 그루", "동지 정오 태양고도 29°", "앞 건물 그림자 16m → 위에서 빛을 받는다", "세 층의 유리벽이 같은 나무를 본다"], "렌더 GPT · 사이트 분석 리포트 05장 일조", (() => { const w1 = IW * 0.42, x2 = IX + w1 + 20, w2 = IW - w1 - 20, sw = (w2 - 15) / 2, sy = IY + IH * 0.62 + 20, sh = IH * 0.38 - 20;
+    return img(R("R14"), IX, IY, w1, IH, "중정 올려보기") + img(R("R20"), x2, IY, w2, IH * 0.62, "중정") + stat(x2, sy, sw, "12.3㎡", "중정 면적", sh, true) + stat(x2 + sw + 15, sy, sw, "29°", "동지 정오 태양고도", sh); })()),
+  (n) => content(n, "10 — 단면", "단면 —\n세 층이 중정을 나눠 쓴다", ["층고 3.8m · 3.7m · 파라펫 +10.5m", "평균지반 기준 높이 10.13m", "고도지구 12m · 정북 10m선 안", "부분 상세 1/30: 노출콘크리트 외벽 · 스틸 창호 · 유리 난간"], "도면 A-331 (1/50) · A-351 (1/30)",
+    img(SL("A-331_c.jpg"), IX, IY, IW * 0.58, IH, "종단면도 A-A'", true) + img(SL("A-351_c.jpg"), IX + IW * 0.58 + 20, IY, IW * 0.42 - 20, IH, "부분 상세 단면도", true)),
+  (n) => content(n, "11 — 외관", "골목의 저녁을\n밝히는 1층", ["왼쪽 아치: 필로티 주차", "오른쪽 아치: 동네 빨래방", "토요일 저녁, 빨래방 불빛이 골목의 가로등이 된다"], "렌더 GPT · 영상 드리미나", (() => { const w1 = IW * 0.6, x2 = IX + w1 + 20, w2 = IW - w1 - 20, h2 = (IH - 20) / 2;
+    return img(R("R18"), IX, IY, w1, IH, "신흥로 진입") + img(R("R22"), x2, IY, w2, h2, "해 질 녘") + img(R("R07"), x2, IY + h2 + 20, w2, h2, "단면투시 B"); })()),
+  (n) => content(n, "12 — 건축 개요", "건축 개요", ["제1종일반주거지역 · 고도지구 12m", "단독주택 + 제1종 근린생활시설(세탁소)", "주차: 필로티 1대 (2.5 × 5.0m)", "학습용 검토 — 인허가 판단 아님"], "16-11_중정형_최대안_법규검토.md", (() => { const w = (IW - 30) / 3, h = 125;
+    const rows = [["층", "바닥면적", "구성"], ["1F", "37.24㎡", "필로티 주차 · 빨래방 · 현관홀 · 부모님 방 · 욕실 (필로티 21.49㎡ 제외)"], ["2F", "58.73㎡", "안방 · 아이방 2 · 가족실 · 욕실·세탁 · 중정 복도"], ["3F", "45.02㎡", "거실·식당 · 주방 · 화장실 · 전면 테라스 (테라스 제외)"], ["합계", "140.99㎡", "용적률 142.65%"]];
+    return [["98.84㎡", "대지면적"], ["58.73㎡", "건축면적"], ["59.42%", "건폐율 (한도 60%)"], ["140.99㎡", "연면적 (약 42.6평)"], ["142.65%", "용적률 (한도 150%)"], ["10.13m", "높이 (한도 12m)"]].map(([b, t], i) => stat(IX + (i % 3) * (w + 15), IY + Math.floor(i / 3) * (h + 15), w, b, t, h, i === 3)).join("")
+      + `<table class="tb" style="left:${IX}px;top:${IY + 2 * (h + 15) + 10}px;width:${IW}px"><colgroup><col style="width:90px"><col style="width:140px"><col></colgroup>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`; })()),
+  (n) => content(n, "13 — 디지털 결과물", "3D 웹 마케트와\n도면집", ["빨간 핀 = 렌더를 찍은 자리", "누르면 3D가 그 자리로 이동해 렌더와 겹쳐 보인다", "사이트 분석 리포트 · 도면집 22장 · 렌더 영상", "QR로 바로 열기"], "greenhopper-design.github.io/haebangchon-1611-maquette",
+    `<a href="./" style="${at(IX, IY, IW - 235, IH)}">${img(SL("web_gallery.jpg"), 0, 0, IW - 235, IH, "3D 웹 마케트 갤러리 화면", true).replace('style="', 'style="position:absolute;')}</a>` + img(SL("qr_site.png"), FX1 - PAD - 210, IY + 100, 210, 210, "사이트 QR", true) + `<div style="${at(FX1 - PAD - 210, IY + 315, 210, 30)};text-align:center;font-weight:700;font-size:16.7px">3D 웹 마케트</div>`),
+  () => cover("감사합니다", "한 채의 집이\n세 개의 시간을 산다", ["오전의 사랑방 · 새벽의 집 · 토요일 저녁의 골목", "세 시간의 집 — 해방촌 16-11", "김세진"], R("R22"), "해 질 녘 조감 렌더"),
+];
+console.assert(S.length === T.length, "슬라이드 수와 대본 수가 다름");
+const html = (i) => `<div class="slide" role="img" aria-label="${esc(`${T[i].no}. ${T[i].title}`)}">${S[i](i + 1)}</div>`;
+
+const N = T.length, $ = (id) => document.getElementById(id);
+$("strip").innerHTML = T.map((t, i) => `<button class="th" data-i="${i}"><div class="mini">${html(i)}</div>${t.no}. ${t.title}</button>`).join("");
+document.querySelectorAll(".th .slide").forEach((s) => (s.style.transform = `scale(${s.parentElement.clientWidth / 1333})`));
 let cur = Math.max(0, Math.min(N - 1, (+location.hash.slice(1) || 1) - 1));
+function fit() {
+  const st = $("stage"), s = st.querySelector(".slide"); if (!s) return;
+  const pad = document.body.classList.contains("fs") ? 0 : 36, k = Math.min((st.clientWidth - pad) / 1333, (st.clientHeight - pad) / 750);
+  s.style.transform = `scale(${k}) translate(-50%, -50%)`;
+}
 function show(i) {
   cur = Math.max(0, Math.min(N - 1, i)); const t = T[cur];
-  $("slide").src = src(cur); $("slide").alt = `${t.no}. ${t.title}`;
+  $("stage").querySelector(".slide")?.remove(); $("stage").insertAdjacentHTML("afterbegin", html(cur)); fit();
   $("pos").textContent = `  ${cur + 1} / ${N}`;
   $("notes").innerHTML = `<div class="t">${t.no} / ${N} · ${t.sec} · ${t.sec_s}초</div><h3>${t.title}</h3>${t.say.map((p) => `<p>${p}</p>`).join("")}<p class="do">▶ ${t.do}</p>
     <div class="qr"><img src="assets/slides/qr_script.png" alt="폰 대본 QR"><span>핸드폰으로 찍으면<br>같은 대본이 열립니다</span></div>`;
   document.querySelectorAll(".th").forEach((b) => b.classList.toggle("on", +b.dataset.i === cur));
   document.querySelector(`.th[data-i="${cur}"]`).scrollIntoView({ inline: "center", block: "nearest" });
   history.replaceState(null, "", `#${cur + 1}`);
-  if (cur + 1 < N) new Image().src = src(cur + 1);   // 다음 장 미리 불러오기
 }
 $("strip").addEventListener("click", (e) => { const b = e.target.closest(".th"); if (b) show(+b.dataset.i); });
 $("bPrev").onclick = () => show(cur - 1); $("bNext").onclick = () => show(cur + 1);
-$("slide").onclick = () => show(cur + 1);
-const notes = (on) => { $("main").classList.toggle("notes", on); $("bNotes").setAttribute("aria-pressed", on); $("bNotes").textContent = on ? "대본 닫기" : "대본 보기"; };
+const notes = (on) => { $("main").classList.toggle("notes", on); $("bNotes").setAttribute("aria-pressed", on); $("bNotes").textContent = on ? "대본 닫기" : "대본 보기"; requestAnimationFrame(fit); };
 $("bNotes").onclick = () => notes(!$("main").classList.contains("notes"));
-$("bFs").onclick = () => { document.body.classList.add("fs"); document.documentElement.requestFullscreen?.(); };
-document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement) document.body.classList.remove("fs"); });
+$("bFs").onclick = () => { document.body.classList.add("fs"); (document.documentElement.requestFullscreen?.() || Promise.resolve()).finally(fit); };
+document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement) document.body.classList.remove("fs"); fit(); });
+addEventListener("resize", fit);
 addEventListener("keydown", (e) => {
   if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); show(cur + 1); }
   else if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); show(cur - 1); }
