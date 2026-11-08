@@ -182,12 +182,30 @@ $$(".dock-btn").forEach((b) => b.addEventListener("click", () => {
 }));
 
 const GALLERY = [
-  ["walkthrough_clay.mp4", "워크스루 (클레이, 19.5초)"],
-  ["A1_iso_general_clay.jpg", "A1 아이소 전경 (클레이)"], ["A1_iso_general_line.jpg", "A1 아이소 전경 (라인)"],
-  ["A2_iso_cut_1F.jpg", "A2 아이소 컷 1F"], ["A2_iso_cut_2F.jpg", "A2 아이소 컷 2F"], ["A2_iso_cut_3F.jpg", "A2 아이소 컷 3F"],
-  ["S1_section_persp_A.jpg", "S1 단면투시 A"], ["S2_section_persp_B.jpg", "S2 단면투시 B"], ["E1_street_eye.jpg", "E1 신흥로 가로"],
-  ["I1_laundromat_to_court.jpg", "I1 빨래방 → 중정"], ["I2_hall_court_stair.jpg", "I2 현관홀 · 중정"], ["I3_2F_gallery_corridor.jpg", "I3 2층 중정 복도"],
-  ["I4_3F_living_terrace.jpg", "I4 3층 거실 → 테라스"], ["I5_3F_kitchen_court.jpg", "I5 3층 주방 → 중정"], ["I6_court_lookup.jpg", "I6 중정 올려보기"], ["I7_1F_room_court.jpg", "I7 부모님 방 → 중정"],
+  ["render/film.mp4", "렌더 영상 (GPT + 드리미나, 6컷 28초)"],
+  ["render/R01.jpg", "01 아이소 전경 (보드)"],
+  ["render/R02.jpg", "02 아이소 전경 (보드 · 클레이 베이스)"],
+  ["render/R03.jpg", "03 1층 아이소 컷"],
+  ["render/R04.jpg", "04 2층 아이소 컷"],
+  ["render/R05.jpg", "05 3층 아이소 컷"],
+  ["render/R06.jpg", "06 단면투시 A"],
+  ["render/R07.jpg", "07 단면투시 B"],
+  ["render/R08.jpg", "08 신흥로 가로"],
+  ["render/R09.jpg", "09 빨래방 → 중정"],
+  ["render/R10.jpg", "10 현관홀 · 중정"],
+  ["render/R11.jpg", "11 2층 중정 복도"],
+  ["render/R12.jpg", "12 3층 거실 → 테라스"],
+  ["render/R13.jpg", "13 3층 주방 → 중정"],
+  ["render/R14.jpg", "14 중정 올려보기"],
+  ["render/R15.jpg", "15 1층 부모님 방 → 중정"],
+  ["render/R16.jpg", "컷 01 조감"],
+  ["render/R17.jpg", "컷 01 조감 (대안)"],
+  ["render/R18.jpg", "컷 02 신흥로 진입"],
+  ["render/R19.jpg", "컷 03 현관홀 나선계단"],
+  ["render/R20.jpg", "컷 04 중정"],
+  ["render/R21.jpg", "컷 05 3층 거실 → 남산"],
+  ["render/R22.jpg", "컷 06 해 질 녘 조감"],
+  ["walkthrough_clay.mp4", "워크스루 원본 (클레이, 19.5초)"],
 ];
 function media(src, big) {
   if (src.endsWith(".mp4")) return `<video src="assets/${src}" ${big ? "controls autoplay" : "muted loop autoplay playsinline"}></video>`;
