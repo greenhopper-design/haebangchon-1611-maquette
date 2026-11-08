@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { openReport } from "./report.js";
 import { RENDERS, CHAPTERS, FILM, img, byView, byFloor, bySec } from "./renders.js";
+import { SHEETS, sheetImg, sheetsFor } from "./sheets.js";
 
 const P = (x, y, z) => new THREE.Vector3(x, z, -y);
 const NORTH = [-0.7155, 0.6986], EAST = [0.6986, 0.7155];   // 로컬 평면에서 정북·정동 (지적 기준)
@@ -44,7 +45,24 @@ Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, n
 sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
 scene.add(sun); scene.add(sun.target); sun.target.position.copy(P(4.5, 5, 0));
 
-const clipMats = [];             // 단면·층 잘라내기를 받는 재질 (건물 + 주변 건물)
+const clipMats = [];
+// ---- 가림 건물 투명화: 카메라와 집 사이(또는 카메라를 감싼) 주변 건물은 반투명으로 — 둘러보기에서 집이 벽에 가리지 않게
+let ctxMat = null;
+const fadeMat = new THREE.MeshStandardMaterial({ color: 0xf0eee9, transparent: true, opacity: 0.12, depthWrite: false, side: THREE.DoubleSide });
+clipMats.push(fadeMat);
+const ray = new THREE.Raycaster(); let lastOcc = 0;
+const PROBES = [[4.5, 5, 0.8], [4.5, 5, 5], [4.5, 5, 9.5], [0.5, 0.8, 4], [8.5, 0.8, 4], [0.5, 9.5, 4], [8.5, 9.5, 4], [4.5, 0.6, 1.5]];
+function updateOccluders(now) {
+  if (now - lastOcc < 120) return; lastOcc = now;
+  const ctx = groups["주변건물"]; if (!ctx || !ctxMat) return;
+  const meshes = ctx.children.filter((o) => o.isMesh), hit = new Set();
+  for (const q of PROBES) {
+    const p = new THREE.Vector3(q[0], q[2], -q[1]), d = p.sub(camera.position), len = d.length();
+    ray.set(camera.position, d.normalize()); ray.far = len;
+    for (const h of ray.intersectObjects(meshes, false)) hit.add(h.object);
+  }
+  for (const m of meshes) { const f = hit.has(m); if ((m.material === fadeMat) !== f) { m.material = f ? fadeMat : ctxMat; m.castShadow = !f; } }
+}             // 단면·층 잘라내기를 받는 재질 (건물 + 주변 건물)
 const groups = {};
 let activePlanes = [];
 
@@ -55,6 +73,7 @@ async function load() {
     const mat = new THREE.MeshStandardMaterial({ color: st.color, roughness: 0.92, metalness: 0, side: THREE.DoubleSide,
       transparent: st.opacity !== undefined, opacity: st.opacity ?? 1, depthWrite: st.opacity === undefined });
     if (!st.ground) clipMats.push(mat);
+    if (st.ctx) ctxMat = mat;
     const root = new THREE.Group(); root.name = name;
     for (const m of g.meshes) {
       const geo = new THREE.BufferGeometry();
@@ -111,9 +130,9 @@ function applyClip() {
 // ---------------------------------------------------------------- 시점 이동
 const VIEWS = {
   overview: { cam: [-16, -44, 50], tgt: [4.5, 5.0, 2.0], label: "조감" },
-  street: { cam: [2.2, -7.6, 1.6], tgt: [4.5, 2.0, 4.6], label: "신흥로 가로" },
-  court: { cam: [4.1, 4.7, 1.5], tgt: [6.4, 8.4, 5.5], label: "중정" },
-  terrace: { cam: [1.6, 0.9, 9.1], tgt: [8.0, 4.5, 8.4], label: "3층 테라스" },
+  street: { cam: [2.2, -7.6, 1.6], tgt: [4.5, 2.0, 4.6], label: "신흥로 가로", fov: 62 },
+  court: { cam: [4.1, 4.7, 1.5], tgt: [6.4, 8.4, 5.5], label: "중정", fov: 72 },
+  terrace: { cam: [1.6, 0.9, 9.1], tgt: [8.0, 4.5, 8.4], label: "3층 테라스", fov: 62 },
   north: { cam: [-6, 24, 16], tgt: [3.5, 6.0, 5.0], label: "정북 사선" },
 };
 let tween = null;
@@ -122,7 +141,7 @@ function goView(key, instant = false) {
   const v = VIEWS[key]; const c = P(...v.cam), t = P(...v.tgt);
   document.getElementById("crumbSub").textContent = v.label;
   if (instant) { camera.position.copy(c); controls.target.copy(t); controls.update(); return; }
-  tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: c, t1: t, s: performance.now(), d: 1400, f0: camera.fov, f1: 35 };
+  tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: c, t1: t, s: performance.now(), d: 1400, f0: camera.fov, f1: v.fov || 35 };
 }
 function stepTween(now) {
   if (!tween) return;
@@ -160,9 +179,9 @@ $("#time").addEventListener("input", (e) => { state.hour = +e.target.value; upda
 $$("[data-season]").forEach((b) => b.addEventListener("click", () => { state.day = +b.dataset.season; exclusive($$("[data-season]"), b); updateSun(); }));
 $("#ctxToggle").addEventListener("change", (e) => { if (groups["주변건물"]) groups["주변건물"].visible = e.target.checked; });
 $("#legalToggle").addEventListener("change", (e) => { if (groups["법규볼륨"]) groups["법규볼륨"].visible = e.target.checked; });
-$$("[data-view]").forEach((b) => b.addEventListener("click", () => { exclusive($$("[data-view]"), b); goView(b.dataset.view); thumbs("#viewThumbs", byView(b.dataset.view)); }));
+$$("[data-view]").forEach((b) => b.addEventListener("click", () => { exclusive($$("[data-view]"), b); goView(b.dataset.view); thumbs("#viewThumbs", byView(b.dataset.view), { view: b.dataset.view }); }));
 $$("[data-floor]").forEach((b) => b.addEventListener("click", () => {
-  exclusive($$("[data-floor]"), b); closeRender(false); thumbs("#floorThumbs", byFloor(b.dataset.floor));
+  exclusive($$("[data-floor]"), b); closeRender(false); thumbs("#floorThumbs", byFloor(b.dataset.floor), b.dataset.floor === "all" ? null : { floor: b.dataset.floor });
   const f = b.dataset.floor === "all" ? null : b.dataset.floor;
   clip.floor = f; applyClip(); setLabels(f);
   if (groups["주변건물"]) groups["주변건물"].visible = !f && $("#ctxToggle").checked;
@@ -170,7 +189,7 @@ $$("[data-floor]").forEach((b) => b.addEventListener("click", () => {
   $("#crumbSub").textContent = f ? `${f}F 평면` : "전체";
 }));
 $$("[data-sec]").forEach((b) => b.addEventListener("click", () => {
-  exclusive($$("[data-sec]"), b); closeRender(false); thumbs("#secThumbs", bySec(b.dataset.sec)); clip.sec = b.dataset.sec === "none" ? null : b.dataset.sec; applyClip();
+  exclusive($$("[data-sec]"), b); closeRender(false); thumbs("#secThumbs", bySec(b.dataset.sec), b.dataset.sec === "none" ? null : { sec: b.dataset.sec }); clip.sec = b.dataset.sec === "none" ? null : b.dataset.sec; applyClip();
   if (clip.sec === "A") tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: P(24, 3.0, 6.0), t1: P(3.0, 5.2, 4.6), s: performance.now(), d: 1200 };
   if (clip.sec === "B") tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: P(4.2, -16, 6.0), t1: P(4.2, 7.0, 4.6), s: performance.now(), d: 1200 };
   $("#crumbSub").textContent = clip.sec ? `단면 ${clip.sec}` : "전체";
@@ -178,6 +197,7 @@ $$("[data-sec]").forEach((b) => b.addEventListener("click", () => {
 $$(".dock-btn").forEach((b) => b.addEventListener("click", () => {
   if (b.dataset.action === "gallery") { setGallery(!galleryOn); return; }
   if (b.dataset.action === "report") { openReport(API); return; }
+  if (b.dataset.action === "sheets") { openSheets(); return; }
   if (!b.dataset.panel) return;   // 링크(렌더 프롬프트 페이지)
   const id = b.dataset.panel, panel = document.getElementById(id), show = panel.hidden;
   setGallery(false); $$(".subpanel").forEach((p) => (p.hidden = true)); $$(".dock-btn").forEach((d) => d.classList.remove("on"));
@@ -191,8 +211,10 @@ function media(src, big) {
   if (src.endsWith(".mp4")) return `<video src="assets/${src}" ${big ? "controls autoplay" : "muted loop autoplay playsinline"}></video>`;
   return `<img src="assets/${src}" alt="" loading="lazy">`;
 }
-function thumbs(sel, list) {
-  $(sel).innerHTML = list.length ? `<p class="rt-h">렌더 — 눌러서 그 자리로</p>` + list.map((r) => `<button class="rt" data-r="${r.id}"><img src="${img(r.id)}" alt="" loading="lazy"><span>${r.t}</span></button>`).join("") : "";
+function thumbs(sel, list, sheetKey) {
+  const sh = sheetKey ? sheetsFor(sheetKey) : [];
+  $(sel).innerHTML = (list.length ? `<p class="rt-h">렌더 — 눌러서 그 자리로</p>` + list.map((r) => `<button class="rt" data-r="${r.id}"><img src="${img(r.id)}" alt="" loading="lazy"><span>${r.t}</span></button>`).join("") : "")
+    + (sh.length ? `<p class="rt-h">도면</p>` + sh.map((d) => `<button class="rt" data-sheet="${d.dwg}"><img src="${sheetImg(d.dwg, true)}" alt="" loading="lazy"><span>${d.dwg} ${d.name}</span></button>`).join("") : "");
 }
 // 라이노 렌즈: 화면의 짧은 변(16:9 캡처에서는 세로) = 24mm → 세로 화각 2·atan(12/L) (GetFrustum 으로 확인)
 // 렌더가 창을 cover 로 덮으므로, 창이 16:9 보다 넓으면 가로를 맞추고 아니면 세로를 그대로 쓴다
@@ -223,7 +245,7 @@ function openRender(id) {
 }
 function closeRender(back = true) {
   if (!cur) return;
-  cur = null; rov.classList.remove("show"); rcard.hidden = true; controls.minDistance = 2; controls.maxPolarAngle = Math.PI * 0.495; pinEls.forEach(({ el }) => (el.style.display = ""));
+  cur = null; rov.classList.remove("show"); rov.style.opacity = ""; rcard.hidden = true; controls.minDistance = 2; controls.maxPolarAngle = Math.PI * 0.495; pinEls.forEach(({ el }) => (el.style.display = ""));
   $$("[data-r]").forEach((b) => b.classList.remove("on"));
   if (back) tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: camera.position.clone(), t1: controls.target.clone(), s: performance.now(), d: 600, f0: camera.fov, f1: 35 };
   else { camera.fov = 35; camera.updateProjectionMatrix(); }
@@ -236,6 +258,7 @@ function setPanelsFor(r) {
 }
 document.addEventListener("click", (e) => {
   const b = e.target.closest("[data-r]"); if (b) { openRender(b.dataset.r); return; }
+  const sb = e.target.closest("[data-sheet]"); if (sb) { openSheets(sb.dataset.sheet); return; }
   if (e.target.closest("[data-film]")) { $("#viewerBody").innerHTML = media(FILM.src, true); $("#viewer").showModal(); }
 });
 rmix.addEventListener("input", () => { rov.style.opacity = rmix.value; });
@@ -268,7 +291,45 @@ function setGallery(on) {
   $('[data-action="gallery"]').classList.toggle("on", on);
   if (on) { $$(".subpanel").forEach((p) => (p.hidden = true)); $$(".dock-btn[data-panel]").forEach((d) => d.classList.remove("on")); goView("overview"); }
 }
-thumbs("#viewThumbs", byView("overview")); thumbs("#floorThumbs", byFloor("all")); thumbs("#secThumbs", bySec("none"));
+thumbs("#viewThumbs", byView("overview"), { view: "overview" }); thumbs("#floorThumbs", byFloor("all")); thumbs("#secThumbs", bySec("none"));
+// ---------------------------------------------------------------- 도면집 뷰어 (도면 ↔ 3D)
+let curSheet = null;
+function openSheets(dwg) {
+  const nav = $("#sheets .sh-nav");
+  if (!nav.childElementCount) {
+    let g = "";
+    nav.innerHTML = SHEETS.map((d) => (d.g !== g ? `<h4>${(g = d.g)}</h4>` : "") + `<button class="sh-it" data-sh="${d.dwg}"><img src="${sheetImg(d.dwg, true)}" alt="" loading="lazy"><span><b>${d.dwg}</b> ${d.name}</span></button>`).join("");
+    nav.addEventListener("click", (e) => { const b = e.target.closest("[data-sh]"); if (b) showSheet(b.dataset.sh); });
+  }
+  showSheet(dwg || curSheet || SHEETS[0].dwg);
+  if (!$("#sheets").open) $("#sheets").showModal();
+}
+function showSheet(dwg) {
+  const d = SHEETS.find((x) => x.dwg === dwg); curSheet = dwg;
+  $("#shImg").src = sheetImg(dwg); $("#shImg").alt = `${d.dwg} ${d.name}`; $("#shFull").href = sheetImg(dwg);
+  $("#shCap").textContent = `${d.dwg} — ${d.name}`; $("#sh3d").hidden = !d.link;
+  $$("#sheets [data-sh]").forEach((b) => b.classList.toggle("on", b.dataset.sh === dwg));
+  const it = $(`#sheets [data-sh="${dwg}"]`); if (it) it.scrollIntoView({ block: "nearest" });
+}
+function sheetTo3D() {
+  const l = (SHEETS.find((x) => x.dwg === curSheet) || {}).link; if (!l) return;
+  $("#sheets").close();
+  if (l.r) return openRender(l.r);
+  if (l.legal) return API.legal(true);
+  const panel = l.floor ? "floorPanel" : l.sec ? "sectionPanel" : "viewPanel";
+  const btn = $(`[data-panel="${panel}"]`); if ($(`#${panel}`).hidden) btn.click();
+  if (l.floor) $(`[data-floor="${l.floor}"]`).click();
+  if (l.sec) $(`[data-sec="${l.sec}"]`).click();
+  if (l.view) $(`[data-view="${l.view}"]`).click();
+}
+$("#sh3d").addEventListener("click", sheetTo3D);
+$("#shClose").addEventListener("click", () => $("#sheets").close());
+addEventListener("keydown", (e) => {
+  if (!$("#sheets").open || !curSheet) return;
+  const i = SHEETS.findIndex((x) => x.dwg === curSheet);
+  if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); showSheet(SHEETS[Math.min(i + 1, SHEETS.length - 1)].dwg); }
+  if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); showSheet(SHEETS[Math.max(i - 1, 0)].dwg); }
+});
 $("#repClose").addEventListener("click", () => $("#report").close());
 $("#repPrint").addEventListener("click", () => print());
 // 리포트 → 3D 연결
@@ -281,11 +342,12 @@ const API = {
   view(key) { exclusive($$("[data-view]"), $(`[data-view="${key}"]`)); goView(key); },
   zoom(src) { $("#viewerBody").innerHTML = media(src, true); $("#viewer").showModal(); },
   render(id) { openRender(id); },
+  sheet(dwg) { openSheets(dwg); },
 };
 $("#viewerClose").addEventListener("click", () => { $("#viewer").close(); $("#viewerBody").innerHTML = ""; });
 
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
-renderer.setAnimationLoop((now) => { stepTween(now); controls.update(); placeLabels(); renderer.render(scene, camera); });
+renderer.setAnimationLoop((now) => { stepTween(now); controls.update(); updateOccluders(now); placeLabels(); renderer.render(scene, camera); });
 
 goView("overview", true); updateSun();
 document.getElementById("viewPanel").hidden = false;

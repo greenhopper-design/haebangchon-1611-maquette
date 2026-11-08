@@ -90,6 +90,7 @@
   <button class="dock-btn" data-panel="floorPanel"><span class="ico">≡</span>층별</button>
   <button class="dock-btn" data-panel="sectionPanel"><span class="ico">◧</span>단면</button>
   <button class="dock-btn" data-action="gallery"><span class="ico">▦</span>갤러리</button>
+  <button class="dock-btn" data-action="sheets"><span class="ico">▤</span>도면집</button>
   <button class="dock-btn" data-panel="infoPanel"><span class="ico">i</span>정보</button>
   <a class="dock-btn" href="prompts.html"><span class="ico">✎</span>렌더 프롬프트</a>
 </nav>
@@ -104,6 +105,11 @@
   <div class="rep-top"><div><b>SITE ANALYSIS</b> — 해방촌 16-11 · 세 시간의 집</div><div><button id="repPrint">인쇄 / PDF</button><button id="repClose" aria-label="닫기">✕</button></div></div>
   <nav class="rep-nav" aria-label="리포트 목차"></nav>
   <div class="rep-body"></div>
+</dialog>
+<dialog id="sheets" aria-label="도면집">
+  <div class="rep-top"><div><b>DRAWINGS</b> — 세 시간의 집 도면집 (A1 · 22장)</div><div><a id="shFull" target="_blank" rel="noopener">원본 크게</a><button id="sh3d">3D에서 보기</button><button id="shClose" aria-label="닫기">✕</button></div></div>
+  <nav class="sh-nav" aria-label="도면 목록"></nav>
+  <div class="sh-body"><img id="shImg" alt=""><p id="shCap"></p></div>
 </dialog>
 <dialog id="viewer" aria-label="크게 보기"><button id="viewerClose" aria-label="닫기">✕</button><div id="viewerBody"></div></dialog>
 

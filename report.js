@@ -95,7 +95,12 @@ const PAGES = [
     <div><div class="stats">${stat("60%", "건폐율 · 최대 59.3㎡")}${stat("150%", "용적률 · 최대 148.3㎡")}${stat("12m", "고도지구 (평균지반 85.82)")}${stat("1.5m", "정북일조 이격 (10m 이하)")}</div>
     <ul class="pts"><li>제1종일반주거지역 · 정북일조 기준지반 86.30m (대지·북측 대지 평균의 중간)</li><li>건축선 안 최대 영역 70.55㎡ 중 59.3㎡만 덮을 수 있다 → 빈 땅 11㎡ 이상은 반드시 남는다</li><li>주차 1대 (단독주택 시설면적 50~150㎡)</li></ul>
     <div class="acts">${act("legal", "3D에서 법규 볼륨 켜기")}</div></div></div>`, "서울도시공간포털 토지이용계획 · 건축법 61조 · 시행령 86조 · 학습용 검토, 인허가 판단 아님"],
-  ["10", "종합", "사이트가 정한 네 가지 설계 조건", () => `
+  ["10", "형태", "법정 최대 볼륨에서 중정형 집으로", () => `
+    <figure class="fig" data-src="diagram/board.jpg"><img src="assets/diagram/board.jpg" alt="형태 다이어그램 6단계" loading="lazy"><figcaption>대지 → 법정 최대 → 정북 사선 → 중정 → 필로티·빨래방 → 테라스</figcaption></figure>
+    <div class="steps6">${[["대지", "98.84㎡ · 신흥로 9.5m 접도"], ["법정 최대", "건폐율 60% · 고도지구 12m"], ["북쪽을 깎다", "정북일조 1.5m · 높이 10.13m"], ["비우다", "중정 12.3㎡ — 빛을 1층까지"], ["열다", "필로티 주차 + 동네 빨래방"], ["물러서다", "3층 2.2m 후퇴 테라스"]]
+      .map(([h, d], i) => `<figure class="fig" data-src="diagram/D${i + 1}.jpg"><img src="assets/diagram/D${i + 1}.jpg" alt="${h}" loading="lazy"><figcaption><b>${i + 1} ${h}</b> · ${d}</figcaption></figure>`).join("")}</div>
+    <div class="acts">${act("legal", "3D에서 법규 볼륨 켜기")}<button class="act" data-sheet="A-003">도면 A-003 →</button><button class="act" data-sheet="A-016">면적산출도 A-016 →</button></div>`, "spec.py v3 치수로 라이노에서 단계별 매스를 만들어 같은 아이소로 캡처 (rh_diagrams.py)"],
+  ["11", "종합", "사이트가 정한 네 가지 설계 조건", () => `
     <div class="cards">${[["남서 도로면이 가장 밝다", "일사 S 950 kWh/㎡", "전면 아치 + 3층 테라스로 거리를 향해 연다", "R08"], ["겨울 1층은 그늘", "동지 29° · 앞 건물 그림자 16m", "중정으로 위에서 빛을 내려 보낸다", "R14"], ["꽉 찬 노후 벽돌 조직", "건폐율 50%↑ 78% · 79%가 1970~90년대", "법정 최대로 짓고 남는 11㎡를 중정 하나로 모은다", "R16"], ["세탁소였던 1층, 걸어서 사는 동네", "15분 안 시설 614곳", "1층은 동네 빨래방 + 필로티 주차 1대", "R09"]]
       .map(([h, d, r, id], i) => `<div class="card"><em>0${i + 1}</em><h4>${h}</h4><small>${d}</small><p>→ ${r}</p><button class="card-r" data-r="${id}"><img src="assets/render/${id}.jpg" alt="${r}" loading="lazy"><span>3D에서 이 자리 보기 →</span></button></div>`).join("")}</div>
     <p class="note big">결론: 중정형 최대 볼륨 — 연면적 140.99㎡ · 용적률 142.65% · 높이 10.13m</p>
@@ -114,7 +119,7 @@ export function openReport(api) {
     body.addEventListener("click", (e) => {
       const b = e.target.closest("[data-act]");
       if (b) { dlg.close(); ({ winter: () => api.season(355, 12), summer: () => api.season(172, 14), legal: () => api.legal(true), court: () => api.view("court") })[b.dataset.act](); return; }
-      if (e.target.closest("[data-r]")) { dlg.close(); return; }   // 렌더 이동은 app.js 가 문서 클릭으로 처리
+      if (e.target.closest("[data-r]") || e.target.closest("[data-sheet]")) { dlg.close(); return; }   // 렌더 이동은 app.js 가 문서 클릭으로 처리
       const f = e.target.closest(".fig"); if (f) api.zoom(f.dataset.src);
     });
   }
