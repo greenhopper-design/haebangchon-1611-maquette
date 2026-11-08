@@ -12,7 +12,9 @@
 </head>
 <body>
 <div id="stage"></div>
+<div id="rov" aria-hidden="true"><img id="rovImg" alt=""></div>
 <div id="labels"></div>
+<div id="pins" hidden></div>
 
 <header class="crumb" aria-label="현재 위치">
   <span class="logo" aria-hidden="true"></span>
@@ -44,6 +46,7 @@
     <button data-floor="2">2F · 침실층</button>
     <button data-floor="3">3F · 거실 · 주방</button>
   </div>
+  <div class="rthumbs" id="floorThumbs"></div>
 </aside>
 
 <aside class="panel subpanel" id="viewPanel" hidden aria-label="시점">
@@ -55,6 +58,7 @@
     <button data-view="terrace">3층 테라스</button>
     <button data-view="north">정북 사선 (16-9 쪽)</button>
   </div>
+  <div class="rthumbs" id="viewThumbs"></div>
 </aside>
 
 <aside class="panel subpanel" id="sectionPanel" hidden aria-label="단면">
@@ -64,6 +68,7 @@
     <button data-sec="A">종단면 A — 빨래방 · 중정 · 뒤쪽 방</button>
     <button data-sec="B">횡단면 B — 계단 · 현관홀 · 중정</button>
   </div>
+  <div class="rthumbs" id="secThumbs"></div>
 </aside>
 
 <aside class="panel subpanel info" id="infoPanel" hidden aria-label="건축 개요">
@@ -89,10 +94,12 @@
   <a class="dock-btn" href="prompts.html"><span class="ico">✎</span>렌더 프롬프트</a>
 </nav>
 
-<dialog id="gallery" aria-label="갤러리">
-  <div class="gal-head"><h2>Gallery — 렌더 (GPT · 드리미나)</h2><button id="galClose" aria-label="닫기">✕</button></div>
-  <div class="gal-grid" id="galGrid"></div>
-</dialog>
+<section class="rcard" id="rcard" hidden aria-label="렌더">
+  <p class="rc-tag" id="rcTag"></p><h2 id="rcTitle"></h2><p class="rc-note" id="rcNote"></p>
+  <label class="rc-mix">3D<input type="range" id="rmix" min="0" max="1" step="0.01" value="1" aria-label="3D와 렌더 겹쳐 보기">렌더</label>
+  <div class="rc-btns"><button id="rcPrev" aria-label="이전">←</button><span id="rcIdx"></span><button id="rcNext" aria-label="다음">→</button><button id="rcZoom">크게</button><button id="rcClose">3D로</button></div>
+</section>
+<div class="strip" id="strip" hidden aria-label="렌더 갤러리"></div>
 <dialog id="report" aria-label="사이트 분석 리포트">
   <div class="rep-top"><div><b>SITE ANALYSIS</b> — 해방촌 16-11 · 세 시간의 집</div><div><button id="repPrint">인쇄 / PDF</button><button id="repClose" aria-label="닫기">✕</button></div></div>
   <nav class="rep-nav" aria-label="리포트 목차"></nav>

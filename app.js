@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { openReport } from "./report.js";
+import { RENDERS, CHAPTERS, FILM, img, byView, byFloor, bySec } from "./renders.js";
 
 const P = (x, y, z) => new THREE.Vector3(x, z, -y);
 const NORTH = [-0.7155, 0.6986], EAST = [0.6986, 0.7155];   // 로컬 평면에서 정북·정동 (지적 기준)
@@ -117,16 +118,18 @@ const VIEWS = {
 };
 let tween = null;
 function goView(key, instant = false) {
+  closeRender(false);
   const v = VIEWS[key]; const c = P(...v.cam), t = P(...v.tgt);
   document.getElementById("crumbSub").textContent = v.label;
   if (instant) { camera.position.copy(c); controls.target.copy(t); controls.update(); return; }
-  tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: c, t1: t, s: performance.now(), d: 1400 };
+  tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: c, t1: t, s: performance.now(), d: 1400, f0: camera.fov, f1: 35 };
 }
 function stepTween(now) {
   if (!tween) return;
   let k = Math.min(1, (now - tween.s) / tween.d); k = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
   camera.position.lerpVectors(tween.c0, tween.c1, k); controls.target.lerpVectors(tween.t0, tween.t1, k);
-  if (k >= 1) tween = null;
+  if (tween.f1 !== undefined) { camera.fov = tween.f0 + (tween.f1 - tween.f0) * k; camera.updateProjectionMatrix(); }
+  if (k >= 1) { const done = tween.done; tween = null; if (done) done(); }
 }
 
 // ---------------------------------------------------------------- 실 이름 라벨 (층 선택 시)
@@ -143,7 +146,7 @@ function setLabels(floor) {
   }
 }
 function placeLabels() {
-  for (const { el, p } of labelEls) {
+  for (const { el, p } of [...labelEls, ...(galleryOn && !cur ? pinEls : [])]) {
     const s = p.clone().project(camera);
     el.style.display = s.z < 1 ? "" : "none";
     el.style.left = `${(s.x * 0.5 + 0.5) * innerWidth}px`; el.style.top = `${(-s.y * 0.5 + 0.5) * innerHeight}px`;
@@ -157,9 +160,9 @@ $("#time").addEventListener("input", (e) => { state.hour = +e.target.value; upda
 $$("[data-season]").forEach((b) => b.addEventListener("click", () => { state.day = +b.dataset.season; exclusive($$("[data-season]"), b); updateSun(); }));
 $("#ctxToggle").addEventListener("change", (e) => { if (groups["주변건물"]) groups["주변건물"].visible = e.target.checked; });
 $("#legalToggle").addEventListener("change", (e) => { if (groups["법규볼륨"]) groups["법규볼륨"].visible = e.target.checked; });
-$$("[data-view]").forEach((b) => b.addEventListener("click", () => { exclusive($$("[data-view]"), b); goView(b.dataset.view); }));
+$$("[data-view]").forEach((b) => b.addEventListener("click", () => { exclusive($$("[data-view]"), b); goView(b.dataset.view); thumbs("#viewThumbs", byView(b.dataset.view)); }));
 $$("[data-floor]").forEach((b) => b.addEventListener("click", () => {
-  exclusive($$("[data-floor]"), b);
+  exclusive($$("[data-floor]"), b); closeRender(false); thumbs("#floorThumbs", byFloor(b.dataset.floor));
   const f = b.dataset.floor === "all" ? null : b.dataset.floor;
   clip.floor = f; applyClip(); setLabels(f);
   if (groups["주변건물"]) groups["주변건물"].visible = !f && $("#ctxToggle").checked;
@@ -167,59 +170,105 @@ $$("[data-floor]").forEach((b) => b.addEventListener("click", () => {
   $("#crumbSub").textContent = f ? `${f}F 평면` : "전체";
 }));
 $$("[data-sec]").forEach((b) => b.addEventListener("click", () => {
-  exclusive($$("[data-sec]"), b); clip.sec = b.dataset.sec === "none" ? null : b.dataset.sec; applyClip();
+  exclusive($$("[data-sec]"), b); closeRender(false); thumbs("#secThumbs", bySec(b.dataset.sec)); clip.sec = b.dataset.sec === "none" ? null : b.dataset.sec; applyClip();
   if (clip.sec === "A") tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: P(24, 3.0, 6.0), t1: P(3.0, 5.2, 4.6), s: performance.now(), d: 1200 };
   if (clip.sec === "B") tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: P(4.2, -16, 6.0), t1: P(4.2, 7.0, 4.6), s: performance.now(), d: 1200 };
   $("#crumbSub").textContent = clip.sec ? `단면 ${clip.sec}` : "전체";
 }));
 $$(".dock-btn").forEach((b) => b.addEventListener("click", () => {
-  if (b.dataset.action === "gallery") { openGallery(); return; }
+  if (b.dataset.action === "gallery") { setGallery(!galleryOn); return; }
   if (b.dataset.action === "report") { openReport(API); return; }
   if (!b.dataset.panel) return;   // 링크(렌더 프롬프트 페이지)
   const id = b.dataset.panel, panel = document.getElementById(id), show = panel.hidden;
-  $$(".subpanel").forEach((p) => (p.hidden = true)); $$(".dock-btn").forEach((d) => d.classList.remove("on"));
+  setGallery(false); $$(".subpanel").forEach((p) => (p.hidden = true)); $$(".dock-btn").forEach((d) => d.classList.remove("on"));
   panel.hidden = !show; b.classList.toggle("on", show);
 }));
 
-const GALLERY = [
-  ["render/film.mp4", "렌더 영상 (GPT + 드리미나, 6컷 28초)"],
-  ["render/R01.jpg", "01 아이소 전경 (보드)"],
-  ["render/R02.jpg", "02 아이소 전경 (보드 · 클레이 베이스)"],
-  ["render/R03.jpg", "03 1층 아이소 컷"],
-  ["render/R04.jpg", "04 2층 아이소 컷"],
-  ["render/R05.jpg", "05 3층 아이소 컷"],
-  ["render/R06.jpg", "06 단면투시 A"],
-  ["render/R07.jpg", "07 단면투시 B"],
-  ["render/R08.jpg", "08 신흥로 가로"],
-  ["render/R09.jpg", "09 빨래방 → 중정"],
-  ["render/R10.jpg", "10 현관홀 · 중정"],
-  ["render/R11.jpg", "11 2층 중정 복도"],
-  ["render/R12.jpg", "12 3층 거실 → 테라스"],
-  ["render/R13.jpg", "13 3층 주방 → 중정"],
-  ["render/R14.jpg", "14 중정 올려보기"],
-  ["render/R15.jpg", "15 1층 부모님 방 → 중정"],
-  ["render/R16.jpg", "컷 01 조감"],
-  ["render/R17.jpg", "컷 01 조감 (대안)"],
-  ["render/R18.jpg", "컷 02 신흥로 진입"],
-  ["render/R19.jpg", "컷 03 현관홀 나선계단"],
-  ["render/R20.jpg", "컷 04 중정"],
-  ["render/R21.jpg", "컷 05 3층 거실 → 남산"],
-  ["render/R22.jpg", "컷 06 해 질 녘 조감"],
-  ["walkthrough_clay.mp4", "워크스루 원본 (클레이, 19.5초)"],
-];
+// ---------------------------------------------------------------- 렌더 ↔ 3D (갤러리 = 3D 안의 카메라 자리들)
+const RMAP = Object.fromEntries(RENDERS.map((r) => [r.id, r]));
+const ORDER = CHAPTERS.flatMap(([k]) => RENDERS.filter((r) => r.ch === k));
 function media(src, big) {
   if (src.endsWith(".mp4")) return `<video src="assets/${src}" ${big ? "controls autoplay" : "muted loop autoplay playsinline"}></video>`;
   return `<img src="assets/${src}" alt="" loading="lazy">`;
 }
-function openGallery() {
-  const grid = $("#galGrid");
-  if (!grid.childElementCount) {
-    grid.innerHTML = GALLERY.map(([s, c]) => `<figure data-src="${s}">${media(s)}<figcaption>${c}</figcaption></figure>`).join("");
-    grid.querySelectorAll("figure").forEach((f) => f.addEventListener("click", () => { $("#viewerBody").innerHTML = media(f.dataset.src, true); $("#viewer").showModal(); }));
-  }
-  $("#gallery").showModal();
+function thumbs(sel, list) {
+  $(sel).innerHTML = list.length ? `<p class="rt-h">렌더 — 눌러서 그 자리로</p>` + list.map((r) => `<button class="rt" data-r="${r.id}"><img src="${img(r.id)}" alt="" loading="lazy"><span>${r.t}</span></button>`).join("") : "";
 }
-$("#galClose").addEventListener("click", () => $("#gallery").close());
+// 라이노 렌즈: 화면의 짧은 변(16:9 캡처에서는 세로) = 24mm → 세로 화각 2·atan(12/L) (GetFrustum 으로 확인)
+// 렌더가 창을 cover 로 덮으므로, 창이 16:9 보다 넓으면 가로를 맞추고 아니면 세로를 그대로 쓴다
+function fovFor(lens) {
+  const v = 2 * Math.atan(12 / lens), a = innerWidth / innerHeight;
+  const out = a > 16 / 9 ? 2 * Math.atan((Math.tan(v / 2) * 16 / 9) / a) : v;
+  return (out * 180) / Math.PI;
+}
+const rov = $("#rov"), rovImg = $("#rovImg"), rcard = $("#rcard"), rmix = $("#rmix");
+let cur = null;
+function openRender(id) {
+  const r = RMAP[id]; if (!r) return;
+  cur = r; setPanelsFor(r); pinEls.forEach(({ el }) => (el.style.display = "none"));
+  const fc = r.lens > 60 ? r.floor : null;   // 층 잘라내기는 아이소 컷만 (실내 컷은 천장이 있어야 함)
+  clip.floor = fc || null; clip.sec = r.sec || null; applyClip(); setLabels(null);
+  if (groups["주변건물"]) groups["주변건물"].visible = !fc && $("#ctxToggle").checked;
+  rov.classList.remove("show"); rovImg.src = img(id);
+  const ch = CHAPTERS.find(([k]) => k === r.ch);
+  $("#rcTag").textContent = `${ch[1]} — ${ch[2]}`; $("#rcTitle").textContent = r.t; $("#rcNote").textContent = r.n;
+  $("#rcIdx").textContent = `${ORDER.indexOf(r) + 1} / ${ORDER.length}`;
+  rcard.hidden = false; rmix.value = 1; rov.style.opacity = "";
+  controls.minDistance = 0.3; controls.maxPolarAngle = Math.PI;   // 중정 올려보기 같은 아래→위 시점 허용
+  tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: P(...r.cam), t1: P(...r.tgt), s: performance.now(), d: 1500,
+    f0: camera.fov, f1: fovFor(r.lens), done: () => { if (cur === r) rov.classList.add("show"); } };
+  $("#crumbSub").textContent = r.t;
+  $$("[data-r]").forEach((b) => b.classList.toggle("on", b.dataset.r === id));
+  const st = $(`#strip [data-r="${id}"]`); if (st) st.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+}
+function closeRender(back = true) {
+  if (!cur) return;
+  cur = null; rov.classList.remove("show"); rcard.hidden = true; controls.minDistance = 2; controls.maxPolarAngle = Math.PI * 0.495; pinEls.forEach(({ el }) => (el.style.display = ""));
+  $$("[data-r]").forEach((b) => b.classList.remove("on"));
+  if (back) tween = { c0: camera.position.clone(), t0: controls.target.clone(), c1: camera.position.clone(), t1: controls.target.clone(), s: performance.now(), d: 600, f0: camera.fov, f1: 35 };
+  else { camera.fov = 35; camera.updateProjectionMatrix(); }
+}
+function step(d) { if (!cur) return; const i = ORDER.indexOf(cur); openRender(ORDER[(i + d + ORDER.length) % ORDER.length].id); }
+// 렌더가 속한 층·단면 칩도 같이 맞춘다
+function setPanelsFor(r) {
+  exclusive($$("[data-floor]"), $(`[data-floor="${(r.lens > 60 && r.floor) || "all"}"]`));
+  exclusive($$("[data-sec]"), $(`[data-sec="${r.sec || "none"}"]`));
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-r]"); if (b) { openRender(b.dataset.r); return; }
+  if (e.target.closest("[data-film]")) { $("#viewerBody").innerHTML = media(FILM.src, true); $("#viewer").showModal(); }
+});
+rmix.addEventListener("input", () => { rov.style.opacity = rmix.value; });
+$("#rcPrev").addEventListener("click", () => step(-1));
+$("#rcNext").addEventListener("click", () => step(1));
+$("#rcClose").addEventListener("click", () => closeRender());
+$("#rcZoom").addEventListener("click", () => { if (cur) API.zoom(`render/${cur.id}.jpg`); });
+controls.addEventListener("start", () => { if (cur && !tween) { rmix.value = 0; rov.style.opacity = 0; } });   // 드래그하면 3D 로
+addEventListener("keydown", (e) => {
+  if (!cur || document.querySelector("dialog[open]")) return;
+  if (e.key === "ArrowRight") step(1); else if (e.key === "ArrowLeft") step(-1); else if (e.key === "Escape") closeRender();
+});
+// 갤러리 모드: 3D 에 카메라 핀 + 아래 필름 스트립
+let galleryOn = false; const pinEls = [];
+function buildGallery() {
+  $("#strip").innerHTML = `<button class="film" data-film><span>▶</span>${FILM.t}</button>` + CHAPTERS.map(([k, name, sub]) => {
+    const list = RENDERS.filter((r) => r.ch === k);
+    return `<section><h3>${name}<small>${sub}</small></h3><div>${list.map((r) => `<button class="rt" data-r="${r.id}"><img src="${img(r.id)}" alt="" loading="lazy"><span>${r.t}</span></button>`).join("")}</div></section>`;
+  }).join("");
+  ORDER.forEach((r, i) => {
+    if (RENDERS.some((q, j) => j < RENDERS.indexOf(r) && q.cam.join() === r.cam.join())) return;   // 같은 자리 핀은 하나만
+    const el = document.createElement("button"); el.className = "pin"; el.dataset.r = r.id; el.title = r.t; el.textContent = i + 1;
+    $("#pins").appendChild(el); pinEls.push({ el, p: P(...r.cam) });
+  });
+}
+function setGallery(on) {
+  if (on && !$("#strip").childElementCount) buildGallery();
+  galleryOn = on; document.body.classList.toggle("gal", on);
+  $("#strip").hidden = !on; $("#pins").hidden = !on;
+  $('[data-action="gallery"]').classList.toggle("on", on);
+  if (on) { $$(".subpanel").forEach((p) => (p.hidden = true)); $$(".dock-btn[data-panel]").forEach((d) => d.classList.remove("on")); goView("overview"); }
+}
+thumbs("#viewThumbs", byView("overview")); thumbs("#floorThumbs", byFloor("all")); thumbs("#secThumbs", bySec("none"));
 $("#repClose").addEventListener("click", () => $("#report").close());
 $("#repPrint").addEventListener("click", () => print());
 // 리포트 → 3D 연결
@@ -231,6 +280,7 @@ const API = {
   legal(on) { $("#legalToggle").checked = on; if (groups["법규볼륨"]) groups["법규볼륨"].visible = on; goView("north"); },
   view(key) { exclusive($$("[data-view]"), $(`[data-view="${key}"]`)); goView(key); },
   zoom(src) { $("#viewerBody").innerHTML = media(src, true); $("#viewer").showModal(); },
+  render(id) { openRender(id); },
 };
 $("#viewerClose").addEventListener("click", () => { $("#viewer").close(); $("#viewerBody").innerHTML = ""; });
 
