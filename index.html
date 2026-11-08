@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>해방촌 16-11 · 세 시간의 집 — Interactive Maquette</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+               "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<div id="labels"></div>
+
+<header class="crumb" aria-label="현재 위치">
+  <span class="logo" aria-hidden="true"></span>
+  <span class="crumb-main">해방촌 16-11</span>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-sub" id="crumbSub">조감</span>
+</header>
+
+<aside class="panel conditions" aria-label="환경 조건">
+  <h2>Conditions</h2>
+  <label class="row" for="time">시간 <output id="timeOut">14:00</output></label>
+  <input id="time" type="range" min="6" max="19" step="0.25" value="14">
+  <div class="row">계절</div>
+  <div class="chips" role="group" aria-label="계절">
+    <button data-season="172" class="chip on">하지</button>
+    <button data-season="80" class="chip">춘·추분</button>
+    <button data-season="355" class="chip">동지</button>
+  </div>
+  <p class="sun" id="sunInfo">태양고도 —</p>
+  <label class="check"><input type="checkbox" id="ctxToggle" checked> 주변 건물</label>
+  <label class="check"><input type="checkbox" id="legalToggle"> 정북일조 법규 볼륨</label>
+</aside>
+
+<aside class="panel subpanel" id="floorPanel" hidden aria-label="층 선택">
+  <h2>Floors</h2>
+  <div class="chips col" role="group">
+    <button data-floor="all" class="chip on">전체</button>
+    <button data-floor="1">1F · 빨래방 · 현관 · 부모님 방</button>
+    <button data-floor="2">2F · 침실층</button>
+    <button data-floor="3">3F · 거실 · 주방</button>
+  </div>
+</aside>
+
+<aside class="panel subpanel" id="viewPanel" hidden aria-label="시점">
+  <h2>Explore</h2>
+  <div class="chips col" role="group">
+    <button data-view="overview" class="chip on">조감</button>
+    <button data-view="street">신흥로 가로</button>
+    <button data-view="court">중정</button>
+    <button data-view="terrace">3층 테라스</button>
+    <button data-view="north">정북 사선 (16-9 쪽)</button>
+  </div>
+</aside>
+
+<aside class="panel subpanel" id="sectionPanel" hidden aria-label="단면">
+  <h2>Section</h2>
+  <div class="chips col" role="group">
+    <button data-sec="none" class="chip on">끄기</button>
+    <button data-sec="A">종단면 A — 빨래방 · 중정 · 뒤쪽 방</button>
+    <button data-sec="B">횡단면 B — 계단 · 현관홀 · 중정</button>
+  </div>
+</aside>
+
+<aside class="panel subpanel info" id="infoPanel" hidden aria-label="건축 개요">
+  <h2>세 시간의 집</h2>
+  <p>서울 용산구 용산동2가 16-11 (신흥로 82-1)</p>
+  <dl>
+    <dt>대지</dt><dd>98.84㎡ (29.9평)</dd>
+    <dt>건축면적</dt><dd>58.73㎡ · 건폐율 59.42%</dd>
+    <dt>연면적</dt><dd>140.99㎡ · 용적률 142.65%</dd>
+    <dt>높이</dt><dd>10.13m (고도지구 12m)</dd>
+    <dt>구성</dt><dd>1F 동네 빨래방 · 필로티 주차 · 부모님 방<br>2F 안방 · 아이방 2 · 가족실<br>3F 거실 · 식당 · 주방 · 테라스</dd>
+  </dl>
+  <p class="muted">학습용 계획안 — 인허가 판단 아님</p>
+</aside>
+
+<nav class="dock" aria-label="메뉴">
+  <button class="dock-btn on" data-panel="viewPanel"><span class="ico">◎</span>둘러보기</button>
+  <button class="dock-btn" data-panel="floorPanel"><span class="ico">≡</span>층별</button>
+  <button class="dock-btn" data-panel="sectionPanel"><span class="ico">◧</span>단면</button>
+  <button class="dock-btn" data-action="gallery"><span class="ico">▦</span>갤러리</button>
+  <button class="dock-btn" data-panel="infoPanel"><span class="ico">i</span>정보</button>
+</nav>
+
+<dialog id="gallery" aria-label="갤러리">
+  <div class="gal-head"><h2>Gallery — GPT 렌더 베이스</h2><button id="galClose" aria-label="닫기">✕</button></div>
+  <div class="gal-grid" id="galGrid"></div>
+</dialog>
+<dialog id="viewer" aria-label="크게 보기"><button id="viewerClose" aria-label="닫기">✕</button><div id="viewerBody"></div></dialog>
+
+<div id="loading">모델 불러오는 중…</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

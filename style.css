@@ -1,0 +1,51 @@
+:root { --ink: #1f2328; --mute: #6b7783; --glass: rgba(24, 26, 29, 0.72); --line: rgba(255, 255, 255, 0.14); --red: #d7263d; --pill: rgba(255, 255, 255, 0.92); }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #e9e7e2; font-family: "Pretendard", "Malgun Gothic", system-ui, sans-serif; color: var(--ink); }
+#stage { position: fixed; inset: 0; }
+#labels { position: fixed; inset: 0; pointer-events: none; }
+.lab { position: absolute; transform: translate(-50%, -50%); padding: 3px 8px; border-radius: 999px; background: var(--pill); font-size: 12px; white-space: nowrap; box-shadow: 0 1px 4px rgba(0, 0, 0, .15); }
+.lab b { font-weight: 600; }
+.lab small { color: var(--mute); margin-left: 4px; }
+
+.crumb { position: fixed; top: 16px; left: 16px; display: flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border-radius: 999px; background: var(--pill); font-size: 14px; box-shadow: 0 2px 10px rgba(0, 0, 0, .12); }
+.logo { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); position: relative; }
+.logo::after { content: ""; position: absolute; inset: 8px; background: var(--red); }
+.crumb-main { font-weight: 600; }
+.crumb-sep, .crumb-sub { color: var(--mute); }
+
+.panel { position: fixed; right: 16px; width: 248px; padding: 14px 16px; border-radius: 14px; background: var(--glass); color: #fff; backdrop-filter: blur(10px); font-size: 13px; box-shadow: 0 6px 24px rgba(0, 0, 0, .25); }
+.panel h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: .04em; font-weight: 600; opacity: .9; }
+.conditions { top: 16px; }
+.subpanel { left: 16px; right: auto; top: 72px; width: 280px; }
+.row { display: flex; justify-content: space-between; margin: 8px 0 4px; }
+input[type=range] { width: 100%; accent-color: #fff; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chips.col { flex-direction: column; }
+.chip, .chips button { all: unset; cursor: pointer; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); font-size: 12.5px; text-align: left; }
+.chips button.on { background: #fff; color: var(--ink); }
+.chips button:focus-visible, .dock-btn:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.sun { margin: 10px 0 6px; color: #cfd6dc; font-size: 12px; }
+.check { display: flex; gap: 8px; align-items: center; margin-top: 6px; cursor: pointer; }
+.info dl { display: grid; grid-template-columns: 70px 1fr; gap: 6px 10px; margin: 10px 0; }
+.info dt { color: #b9c2ca; } .info dd { margin: 0; }
+.info p { margin: 0; } .muted { color: #9aa4ad; font-size: 11.5px; margin-top: 8px !important; }
+
+.dock { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: 16px; background: var(--glass); backdrop-filter: blur(10px); box-shadow: 0 6px 24px rgba(0, 0, 0, .25); }
+.dock-btn { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 64px; padding: 8px 6px; border-radius: 11px; color: #e6eaed; font-size: 11.5px; }
+.dock-btn .ico { font-size: 17px; line-height: 1; }
+.dock-btn.on, .dock-btn:hover { background: #fff; color: var(--ink); }
+
+dialog { border: 0; border-radius: 16px; padding: 0; max-width: min(1200px, 94vw); max-height: 90vh; background: #f6f5f2; }
+dialog::backdrop { background: rgba(10, 12, 14, .6); }
+.gal-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 6px; }
+.gal-head h2 { margin: 0; font-size: 16px; }
+dialog button[aria-label="닫기"] { all: unset; cursor: pointer; font-size: 18px; padding: 4px 8px; }
+.gal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; padding: 12px 20px 20px; overflow: auto; max-height: calc(90vh - 60px); }
+.gal-grid figure { margin: 0; cursor: pointer; }
+.gal-grid img, .gal-grid video { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: 8px; background: #ddd; display: block; }
+.gal-grid figcaption { font-size: 12px; color: var(--mute); margin-top: 4px; }
+#viewer { padding: 10px; }
+#viewer img, #viewer video { max-width: 90vw; max-height: 82vh; display: block; }
+#viewerClose { position: absolute; right: 8px; top: 6px; background: #fff !important; border-radius: 50%; }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; font-size: 14px; color: var(--mute); background: #e9e7e2; transition: opacity .4s; }
+@media (max-width: 760px) { .conditions { top: auto; bottom: 92px; width: 210px; } .subpanel { width: 230px; } .dock-btn { min-width: 52px; } }
