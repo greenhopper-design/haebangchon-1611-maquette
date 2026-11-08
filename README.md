@@ -4,6 +4,8 @@
 
 **바로 보기:** https://greenhopper-design.github.io/haebangchon-1611-maquette/
 
+**렌더 프롬프트:** https://greenhopper-design.github.io/haebangchon-1611-maquette/prompts.html — 베이스 이미지 15장 + 영상, 카드별 프롬프트 복사
+
 - **사이트 분석**: 광역 분석 + 현장·도면 조사 리포트 10장 (위치 · 레이어 · 도시 조직 · 생활권 · 기후 · 태양·바람 · 대지 · 법규 · 종합), 3D 모형과 연동, 인쇄/PDF
 - **둘러보기**: 조감 · 신흥로 가로 · 중정 · 3층 테라스 · 정북 사선 시점
 - **층별**: 1F · 2F · 3F를 잘라 보고 실 이름과 면적을 표시

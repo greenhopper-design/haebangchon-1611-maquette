@@ -175,6 +175,7 @@ $$("[data-sec]").forEach((b) => b.addEventListener("click", () => {
 $$(".dock-btn").forEach((b) => b.addEventListener("click", () => {
   if (b.dataset.action === "gallery") { openGallery(); return; }
   if (b.dataset.action === "report") { openReport(API); return; }
+  if (!b.dataset.panel) return;   // 링크(렌더 프롬프트 페이지)
   const id = b.dataset.panel, panel = document.getElementById(id), show = panel.hidden;
   $$(".subpanel").forEach((p) => (p.hidden = true)); $$(".dock-btn").forEach((d) => d.classList.remove("on"));
   panel.hidden = !show; b.classList.toggle("on", show);
