@@ -1,4 +1,4 @@
-// 도면집 22장 (cad_sheets.py → PDF → assets/sheets/*.jpg). link = 3D 에서 같이 볼 상태
+// 도면집 26장 (cad_sheets.py → PDF → assets/sheets/*.jpg). link = 3D 에서 같이 볼 상태
 export const SHEETS = [
 {
 "dwg": "G-000",
@@ -8,6 +8,11 @@ export const SHEETS = [
 {
 "dwg": "G-001",
 "name": "도면목록표",
+"g": "공통"
+},
+{
+"dwg": "G-002",
+"name": "일반사항 · 범례",
 "g": "공통"
 },
 {
@@ -64,6 +69,16 @@ export const SHEETS = [
 "link": {
 "floor": "1"
 }
+},
+{
+"dwg": "A-020",
+"name": "실내재료마감표",
+"g": "건축 개요 · 대지"
+},
+{
+"dwg": "A-021",
+"name": "창호일람표",
+"g": "건축 개요 · 대지"
 },
 {
 "dwg": "A-311",
@@ -160,6 +175,11 @@ export const SHEETS = [
 "link": {
 "sec": "A"
 }
+},
+{
+"dwg": "A-352",
+"name": "벽 · 지붕 · 바닥 구성 상세",
+"g": "단면 · 상세"
 }
 ];
 export const sheetImg = (d, thumb) => `assets/sheets/${d}${thumb ? "_t" : ""}.jpg`;
