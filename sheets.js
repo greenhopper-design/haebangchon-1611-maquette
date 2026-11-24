@@ -1,4 +1,4 @@
-// 도면집 27장 (cad_sheets.py → PDF → assets/sheets/*.jpg). link = 3D 에서 같이 볼 상태
+// 도면집 30장 (cad_sheets.py → PDF → assets/sheets/*.jpg). link = 3D 에서 같이 볼 상태
 export const SHEETS = [
 {
 "dwg": "G-000",
@@ -13,6 +13,11 @@ export const SHEETS = [
 {
 "dwg": "G-002",
 "name": "일반사항 · 범례",
+"g": "공통"
+},
+{
+"dwg": "G-003",
+"name": "적용 기준 · 표준상세 참조",
 "g": "공통"
 },
 {
@@ -146,7 +151,7 @@ export const SHEETS = [
 },
 {
 "dwg": "A-331",
-"name": "종단면도 A-A",
+"name": "종단면도 A-A'",
 "g": "단면 · 상세",
 "link": {
 "sec": "A"
@@ -154,7 +159,7 @@ export const SHEETS = [
 },
 {
 "dwg": "A-332",
-"name": "횡단면도 B-B",
+"name": "횡단면도 B-B'",
 "g": "단면 · 상세",
 "link": {
 "sec": "B"
@@ -186,6 +191,16 @@ export const SHEETS = [
 "name": "창틀 · 루버 · 퍼골라 상세",
 "g": "단면 · 상세",
 "r": "V21"
+},
+{
+"dwg": "A-354",
+"name": "주요부 상세 (1)",
+"g": "단면 · 상세"
+},
+{
+"dwg": "A-355",
+"name": "주요부 상세 (2)",
+"g": "단면 · 상세"
 }
 ];
 export const sheetImg = (d, thumb) => `assets/sheets/${d}${thumb ? "_t" : ""}.jpg`;
