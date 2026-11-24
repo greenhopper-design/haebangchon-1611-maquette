@@ -109,7 +109,7 @@ const PAGES = [
       .map(([h, d], i) => `<figure class="fig" data-src="diagram/D${i + 1}.jpg"><img src="assets/diagram/D${i + 1}.jpg" alt="${h}" loading="lazy"><figcaption><b>${i + 1} ${h}</b> · ${d}</figcaption></figure>`).join("")}</div>
     <div class="acts">${act("legal", "3D에서 법규 볼륨 켜기")}<button class="act" data-sheet="A-003">도면 A-003 →</button><button class="act" data-sheet="A-016">면적산출도 A-016 →</button></div>`, "spec.py v3 치수로 라이노에서 단계별 매스를 만들어 같은 아이소로 캡처 (rh_diagrams.py)"],
   ["11", "종합", "사이트가 정한 네 가지 설계 조건", () => `
-    <div class="cards">${[["남서 도로면이 가장 밝다", "일사 S 950 kWh/㎡", "전면 아치 + 3층 테라스로 거리를 향해 연다", "R08"], ["겨울 1층은 그늘", "동지 29° · 앞 건물 그림자 16m", "중정으로 위에서 빛을 내려 보낸다", "R14"], ["꽉 찬 노후 벽돌 조직", "건폐율 50%↑ 78% · 79%가 1970~90년대", "법정 최대로 짓고 남는 11㎡를 중정 하나로 모은다", "R16"], ["관광 상권 속에 빠진 생활시설", "15분 생활권 614곳 중 76%가 음식점·카페", "1층은 주민이 같이 쓰는 빨래방 + 필로티 주차 1대", "R09"]]
+    <div class="cards">${[["남서 도로면이 가장 밝다", "일사 S 950 kWh/㎡", "전면 아치 + 3층 테라스로 거리를 향해 연다", "V03"], ["겨울 1층은 그늘", "동지 29° · 앞 건물 그림자 16m", "중정으로 위에서 빛을 내려 보낸다", "V40"], ["꽉 찬 노후 벽돌 조직", "건폐율 50%↑ 78% · 79%가 1970~90년대", "법정 최대로 짓고 남는 11㎡를 중정 하나로 모은다", "V01"], ["관광 상권 속에 빠진 생활시설", "15분 생활권 614곳 중 76%가 음식점·카페", "1층은 주민이 같이 쓰는 빨래방 + 필로티 주차 1대", "V10"]]
       .map(([h, d, r, id], i) => `<div class="card"><em>0${i + 1}</em><h4>${h}</h4><small>${d}</small><p>→ ${r}</p><button class="card-r" data-r="${id}"><img src="assets/render/${id}.jpg" alt="${r}" loading="lazy"><span>3D에서 이 자리 보기 →</span></button></div>`).join("")}</div>
     <p class="note big">결론: 중정형 최대 볼륨 — 연면적 140.99㎡ · 용적률 142.65% · 높이 10.13m</p>
     <div class="acts">${act("court", "3D에서 중정 보기")}</div>`, "설계안 v4 (외곽·면적은 v3와 같고 실 배치만 바꿈) · 근거 수치는 앞 장들"],

@@ -20,7 +20,7 @@ export const SHEETS = [
 "name": "외부 투시도",
 "g": "투시도 · 다이어그램",
 "link": {
-"r": "R08"
+"r": "V03"
 }
 },
 {
@@ -28,7 +28,7 @@ export const SHEETS = [
 "name": "실내 투시도",
 "g": "투시도 · 다이어그램",
 "link": {
-"r": "R12"
+"r": "V30"
 }
 },
 {
@@ -44,7 +44,7 @@ export const SHEETS = [
 "name": "아이소·단면 렌더",
 "g": "투시도 · 다이어그램",
 "link": {
-"r": "R03"
+"r": "V51"
 }
 },
 {
